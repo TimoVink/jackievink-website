@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    assignees:
+      - "TimoVink"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "terraform"
+    directory: "/infra"
+    assignees:
+      - "TimoVink"
+    schedule:
+      interval: "monthly"

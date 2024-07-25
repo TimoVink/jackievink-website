@@ -32,20 +32,12 @@ data "aws_route53_zone" "this" {
 # Resources
 #
 
-resource "aws_route53_record" "verify" {
-  zone_id = data.aws_route53_zone.this.zone_id
-  name    = "w9f3g7e76lswjkxaxbsf"
-  type    = "CNAME"
-  ttl     = local.ttl
-  records = ["verify.squarespace.com"]
-}
-
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.this.zone_id
   name    = "www"
   type    = "CNAME"
   ttl     = local.ttl
-  records = ["ext-cust.squarespace.com"]
+  records = ["cname.vercel-dns.com."]
 }
 
 resource "aws_route53_record" "s" {
@@ -53,10 +45,5 @@ resource "aws_route53_record" "s" {
   name    = local.website_url
   type    = "A"
   ttl     = local.ttl
-  records = [
-    "198.185.159.144",
-    "198.185.159.145",
-    "198.49.23.144",
-    "198.49.23.145",
-  ]
+  records = ["76.76.21.21"]
 }

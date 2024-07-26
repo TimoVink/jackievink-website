@@ -63,7 +63,7 @@ const ThreadEntry = ({ entry }) => (
     entry.author === USER ? 'justify-end' : 'justify-start'
   )}>
     <div className={cn(
-      "rounded-xl px-3 py-2",
+      "rounded-2xl px-4 py-2",
       entry.author === USER ? "bg-primary" : "bg-muted",
       entry.author === USER ? "text-primary-foreground" : "bg-muted",
     )}>
@@ -77,8 +77,8 @@ const ThreadDisplay = async () => {
   const entries = await fetchEntries('d624a1dbd2242b04', USER);
 
   return (
-    <ScrollArea className="flex-1 border-r p-8">
-      <div className="space-y-1">
+    <ScrollArea className="flex-1 border-r ">
+      <div className="p-8 space-y-1">
         {entries.map(e => (
           <ThreadEntry
             key={e.entry_id}

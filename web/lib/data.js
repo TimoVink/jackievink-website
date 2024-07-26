@@ -22,14 +22,18 @@ export async function fetchThreads(type, user_id) {
 
 export async function fetchEntries(thread_id, user_id) {
   const data = await sql`
-    SELECT e.entry_id, e.timestamp, e.author, et.content
-    FROM entries e
-    INNER JOIN entry_access a USING (entry_id)
-    INNER JOIN entry_text et USING (entry_id)
-    WHERE e.thread_id = ${thread_id}
-    AND a.identity = ${user_id}
-    ORDER BY e.timestamp
-    LIMIT 100
+    SELECT *
+    FROM (
+      SELECT e.entry_id, e.timestamp, e.author, et.content
+      FROM entries e
+      INNER JOIN entry_access a USING (entry_id)
+      INNER JOIN entry_text et USING (entry_id)
+      WHERE e.thread_id = ${thread_id}
+      AND a.identity = ${user_id}
+      ORDER BY e.timestamp DESC
+      LIMIT 1000
+    )
+    ORDER BY timestamp
   `;
 
   return data.rows;

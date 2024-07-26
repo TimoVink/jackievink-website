@@ -12,7 +12,7 @@ const NavLink = ({ href, children }) => {
       href={href}
       className={cn(
         "text-sm font-medium transition-colors hover:text-primary",
-        pathname === href && "text-primary border-primary border-b-2",
+        pathname.startsWith(href) && "text-primary border-primary border-b-2",
       )}
     >
       {children}

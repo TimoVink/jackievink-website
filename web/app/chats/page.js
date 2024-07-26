@@ -27,8 +27,8 @@ const SourceIcon = ({ source }) => {
 const ThreadList = async () => {
   const threads = await fetchThreads('instant-message', USER);
   return (
-    <ScrollArea className="w-[28rem] border-r p-4">
-      <div className="space-y-2">
+    <ScrollArea className="w-[28rem] border-r">
+      <div className="p-4 space-y-2">
         {threads.map(t => (
           <div key={t.thread_id} id={`thread-${t.thread_id}`} className="border rounded-lg py-2 px-3 text-sm space-y-1">
             <div className="flex items-center space-x-1">

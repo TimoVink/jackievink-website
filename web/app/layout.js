@@ -43,16 +43,14 @@ const RootLayout = ({ children }) => (
   <html lang="en" className="h-full w-full m-0 p-0">
     <body
       className={cn(
-        "min-h-screen h-full w-full m-0 p-0 bg-background font-sans antialiased",
+        "h-screen w-full m-0 p-0 bg-background font-sans antialiased flex flex-col",
         fontSans.variable
       )}
     >
-      <div className="h-full flex flex-col">
-        <Header />
-        <main className="h-full">
-          {children}
-        </main>
-      </div>
+      <Header />
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
       <Analytics />
       <SpeedInsights />
     </body>

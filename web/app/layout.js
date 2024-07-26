@@ -1,8 +1,9 @@
-import Link from "next/link"
 import { Inter as FontSans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cn } from '@/lib/utils';
+
+import NavLink from '@/components/navlink';
 
 import './globals.css';
 
@@ -25,17 +26,13 @@ const links = {
 }
 
 const Header = () => (
-  <header className="sticky top-0 z-50 w-full border-b bg-white">
-    <div className="container flex justify-center h-14 max-w-screen-2xl items-center">
-      <nav className="flex items-center space-x-4 lg:space-x-6">
+  <header className="border-b">
+    <div className="container flex justify-center h-14 items-center">
+      <nav className="flex items-center space-x-8">
         {Object.entries(links).map(([url, name]) => (
-          <Link
-            key={url}
-            href={url}
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
+          <NavLink key={url} href={url}>
             {name}
-          </Link>
+          </NavLink>
         ))}
       </nav>
     </div>

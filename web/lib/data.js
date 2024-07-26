@@ -18,14 +18,9 @@ const toCamelCase = (item) => {
 
 export async function fetchLatestThreadId(type, userId) {
   const data = await sql`
-    SELECT t.thread_id
-    FROM threads t
-    INNER JOIN entries e USING (thread_id)
-    INNER JOIN entry_access a USING (entry_id)
-    WHERE t.type = ${type}
-    AND a.identity = ${userId}
-    ORDER BY e.timestamp DESC
-    LIMIT 1
+    SELECT thread_id
+    FROM pf_im_latest_thread_id
+    WHERE identity = ${userId}
   `;
 
   return data.rows[0]['thread_id'];
@@ -34,23 +29,9 @@ export async function fetchLatestThreadId(type, userId) {
 
 export async function fetchThreads(type, userId) {
   const data = await sql`
-    SELECT *
-    FROM (
-      SELECT DISTINCT ON (t.thread_id)
-        t.thread_id,
-        t.source,
-        t.title,
-        e.timestamp,
-        e.author,
-        et.content
-      FROM threads t
-      INNER JOIN entries e USING (thread_id)
-      INNER JOIN entry_access a USING (entry_id)
-      LEFT JOIN entry_text et USING (entry_id)
-      WHERE t.type = ${type}
-      AND a.identity = ${userId}
-      ORDER BY t.thread_id, e.timestamp DESC
-    )
+    SELECT thread_id, source, title, timestamp, author, content
+    FROM pf_im_threads_list
+    WHERE identity = ${userId}
     ORDER BY timestamp DESC
   `;
 

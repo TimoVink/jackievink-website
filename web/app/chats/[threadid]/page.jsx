@@ -1,14 +1,14 @@
 import { format, formatDistanceToNow } from 'date-fns';
-
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { fetchEntries, fetchThreads } from "@/lib/data";
 import { SiMessenger, SiInstagram, SiWhatsapp } from '@icons-pack/react-simple-icons';
-import { cn } from '@/lib/utils';
 
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { fetchEntries, fetchThreads } from '@/lib/data';
+import { emojify } from '@/lib/emoji';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 
 const USER = 'timo.vink';
-
 
 
 const SourceIcon = ({ source }) => {
@@ -24,13 +24,18 @@ const SourceIcon = ({ source }) => {
   return <span />;
 }
 
-const ThreadList = async () => {
+const ThreadList = async ({ threadId }) => {
   const threads = await fetchThreads('instant-message', USER);
   return (
     <ScrollArea className="w-[28rem] border-r">
       <div className="p-4 space-y-2">
         {threads.map(t => (
-          <div key={t.thread_id} id={`thread-${t.thread_id}`} className="border rounded-lg py-2 px-3 text-sm space-y-1">
+          <Link
+            key={t.thread_id}
+            id={`thread-${t.thread_id}`}
+            className="block border rounded-lg py-2 px-3 text-sm space-y-1"
+            href={`/chats/${t.thread_id}`}
+          >
             <div className="flex items-center space-x-1">
               <SourceIcon source={t.source} />
               <div className="flex flex-1 justify-between items-baseline space-x-1">
@@ -44,12 +49,12 @@ const ThreadList = async () => {
                 </div>
               </div>
             </div>
-            <div className="line-clamp-2 text-xs text-muted-foreground">
+            <div className="line-clamp-1 text-xs text-muted-foreground">
               {t.content
                 ? `${t.author}: ${t.content}`
                 : `${t.author} sent a message`}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </ScrollArea>
@@ -63,18 +68,18 @@ const ThreadEntry = ({ entry }) => (
     entry.author === USER ? 'justify-end' : 'justify-start'
   )}>
     <div className={cn(
-      "rounded-2xl px-4 py-2",
+      "max-w-[36rem] rounded-2xl px-4 py-2 break-words",
       entry.author === USER ? "bg-primary" : "bg-muted",
       entry.author === USER ? "text-primary-foreground" : "bg-muted",
     )}>
-      {entry.content}
+      {emojify(entry.content)}
     </div>
   </div>
 )
 
 
-const ThreadDisplay = async () => {
-  const entries = await fetchEntries('d624a1dbd2242b04', USER);
+const ThreadDisplay = async ({ threadId }) => {
+  const entries = await fetchEntries(threadId, USER);
 
   return (
     <ScrollArea className="flex-1 border-r ">
@@ -92,11 +97,12 @@ const ThreadDisplay = async () => {
 }
 
 
-const Page = () => {
+const Page = ({ params }) => {
+  const threadId = params.threadid;
   return (
     <div className="h-full flex">
-      <ThreadList />
-      <ThreadDisplay />
+      <ThreadList threadId={threadId} />
+      <ThreadDisplay threadId={threadId} />
     </div>
   );
 }

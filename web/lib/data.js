@@ -1,5 +1,22 @@
 import { sql } from '@vercel/postgres';
 
+
+export async function fetchLatestThreadId(type, user_id) {
+  const data = await sql`
+    SELECT t.thread_id
+    FROM threads t
+    INNER JOIN entries e USING (thread_id)
+    INNER JOIN entry_access a USING (entry_id)
+    WHERE t.type = ${type}
+    AND a.identity = ${user_id}
+    ORDER BY e.timestamp DESC
+    LIMIT 1
+  `;
+
+  return data.rows[0]['thread_id'];
+}
+
+
 export async function fetchThreads(type, user_id) {
   const data = await sql`
     SELECT *

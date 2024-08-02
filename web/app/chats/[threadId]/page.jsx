@@ -1,8 +1,5 @@
 
-import { Suspense } from 'react';
-
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Spinner } from '@/components/ui/spinner';
 
 import { fetchEntries } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
@@ -31,15 +28,6 @@ const ThreadEntry = ({ entry }) => (
 )
 
 
-const ThreadDisplaySkeleton = () => (
-  <div className="h-full flex-1 flex flex-col justify-center">
-    <div className="w-full flex justify-center">
-      <Spinner />
-    </div>
-  </div>
-);
-
-
 const ThreadDisplay = async ({ threadId }) => {
   const entries = await fetchEntries(threadId, USER);
 
@@ -55,9 +43,7 @@ const ThreadDisplay = async ({ threadId }) => {
 }
 
 const Page = ({ params }) => (
-  <Suspense fallback={<ThreadDisplaySkeleton />}>
-    <ThreadDisplay threadId={params.threadId} />
-  </Suspense>
+  <ThreadDisplay threadId={params.threadId} />
 );
 
 

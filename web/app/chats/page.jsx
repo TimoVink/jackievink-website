@@ -1,8 +1,8 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 import { fetchLatestThreadId } from '@/lib/data';
 import Spinner from '@/components/ui/spinner';
-import { Suspense } from 'react';
 
 
 const USER = 'timo.vink';

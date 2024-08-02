@@ -1,9 +1,12 @@
+
+import { Suspense } from 'react';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Spinner } from '@/components/ui/spinner';
+
 import { fetchEntries } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
-import { Suspense } from 'react';
-import Spinner from '@/components/ui/spinner';
 
 
 const USER = 'timo.vink';
@@ -41,7 +44,7 @@ const ThreadDisplay = async ({ threadId }) => {
   const entries = await fetchEntries(threadId, USER);
 
   return (
-    <ScrollArea className="flex-1 border-r ">
+    <ScrollArea>
       <div className="p-8 space-y-1">
         {entries.map(e => (
           <ThreadEntry key={e.entryId} entry={e} />

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { SiMessenger, SiInstagram, SiWhatsapp } from '@icons-pack/react-simple-icons';
 import Link from 'next/link';
@@ -5,7 +6,6 @@ import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchThreads } from '@/lib/data';
-import { Suspense } from 'react';
 
 
 const USER = 'timo.vink';
@@ -100,7 +100,9 @@ const ThreadListContainer = ({ threadId }) => (
 const Layout = ({ params, children }) => (
   <div className="h-full flex">
     <ThreadListContainer threadId={params.threadId} />
-    {children}
+    <div className="flex-1">
+      {children}
+    </div>
   </div>
 );
 

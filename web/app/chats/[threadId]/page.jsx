@@ -1,7 +1,6 @@
-
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-import { fetchEntries } from '@/lib/data';
+import { fetchChatEntries, fetchAllChatThreadIds } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
 
@@ -29,7 +28,7 @@ const ThreadEntry = ({ entry }) => (
 
 
 const ThreadDisplay = async ({ threadId }) => {
-  const entries = await fetchEntries(threadId, USER);
+  const entries = await fetchChatEntries(threadId, USER);
 
   return (
     <ScrollArea>
@@ -40,6 +39,12 @@ const ThreadDisplay = async ({ threadId }) => {
       </div>
     </ScrollArea>
   );
+}
+
+export async function generateStaticParams() {
+  const entries = await fetchAllChatThreadIds();
+  const result = entries.map(threadId => ({ threadId }))
+  return result;
 }
 
 const Page = ({ params }) => (

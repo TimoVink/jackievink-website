@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
-import { fetchLatestThreadId } from '@/lib/data';
+import { fetchLatestChatThreadId } from '@/lib/data';
 import Spinner from '@/components/ui/spinner';
 
 
@@ -17,7 +17,7 @@ const Loading = () => (
 )
 
 const Redirect = async () => {
-  const threadId = await fetchLatestThreadId('instant-message', USER);
+  const threadId = await fetchLatestChatThreadId(USER);
   redirect(`/chats/${threadId}`);
 }
 

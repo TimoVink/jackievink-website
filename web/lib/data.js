@@ -16,7 +16,18 @@ const toCamelCase = (item) => {
 };
 
 
-export async function fetchLatestThreadId(type, userId) {
+export async function fetchAllChatThreadIds() {
+  const data = await sql`
+    SELECT DISTINCT thread_id
+    FROM threads
+    WHERE type = 'instant-message'
+  `;
+
+  return data.rows.map(x => x.thread_id);
+}
+
+
+export async function fetchLatestChatThreadId(userId) {
   const data = await sql`
     SELECT thread_id
     FROM pf_im_latest_thread_id
@@ -27,7 +38,7 @@ export async function fetchLatestThreadId(type, userId) {
 }
 
 
-export async function fetchThreads(type, userId) {
+export async function fetchChatThreads(userId) {
   const data = await sql`
     SELECT thread_id, source, title, timestamp, author, content
     FROM pf_im_threads_list
@@ -39,7 +50,7 @@ export async function fetchThreads(type, userId) {
 }
 
 
-export async function fetchEntries(threadId, userId) {
+export async function fetchChatEntries(threadId, userId) {
   const data = await sql`
     SELECT *
     FROM (

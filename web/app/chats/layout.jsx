@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from "@/components/ui/skeleton"
-import { fetchThreads } from '@/lib/data';
+import { fetchChatThreads } from '@/lib/data';
 
 
 const USER = 'timo.vink';
@@ -41,7 +41,7 @@ const ThreadListEntry = ({ thread, isActive }) => (
     key={thread.threadId}
     id={`thread-${thread.threadId}`}
     className="block border rounded-lg py-2 px-3 text-sm space-y-1"
-    href={thread.threadId}
+    href={`/chats/${thread.threadId}`}
   >
     <div className="flex items-center space-x-1">
       <SourceIcon source={thread.source} />
@@ -75,7 +75,7 @@ const ThreadListSkeleton = () => (
 )
 
 const ThreadList = async ({ threadId }) => {
-  const threads = await fetchThreads('instant-message', USER);
+  const threads = await fetchChatThreads(USER);
   return (
     <ScrollArea className="w-[28rem] border-r">
       <div className="p-4 space-y-2">

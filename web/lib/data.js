@@ -56,18 +56,22 @@ export async function fetchChatEntries(threadId, userId) {
     FROM (
       SELECT
         e.entry_id,
+        e.type,
         e.timestamp,
         e.author,
-        et.content
+        et.content,
+        el.text,
+        el.uri
       FROM entries e
       INNER JOIN entry_access a USING (entry_id)
-      INNER JOIN entry_text et USING (entry_id)
+      LEFT JOIN entry_text et USING (entry_id)
+      LEFT JOIN entry_links el USING (entry_id)
       WHERE e.thread_id = ${threadId}
       AND a.identity = ${userId}
       ORDER BY e.timestamp DESC
       LIMIT 1000
     )
-    ORDER BY timestamp
+    ORDER BY timestamp, type DESC
   `;
 
   return toCamelCase(data.rows);

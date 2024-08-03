@@ -68,14 +68,34 @@ const ThreadEntry = ({ entry }) => {
   return <div />;
 }
 
+const cleanAuthor = (author) => {
+  const firstName = author.split(/[\.\-]/)[0];
+  return `${firstName[0].toUpperCase()}${firstName.substring(1)}`;
+}
+
+const ThreadEntryGroup = ({ entryGroup }) => (
+  <div>
+    {entryGroup.author !== USER && (
+      <div className="px-4 pt-2 pb-0.5 text-[0.67rem] tracking-wide text-muted-foreground">
+        {cleanAuthor(entryGroup.author)}
+      </div>
+    )}
+    <div className="space-y-1">
+      {entryGroup.entries.map(e => (
+        <ThreadEntry key={e.entryId} entry={({ ...e, author: entryGroup.author })} />
+      ))}
+    </div>
+  </div>
+);
+
 const ThreadDisplay = async ({ threadId }) => {
-  const entries = await fetchChatEntries(threadId, USER);
+  const entryGroups = await fetchChatEntries(threadId, USER);
 
   return (
     <ScrollArea>
       <div className="p-8 space-y-1">
-        {entries.map(e => (
-          <ThreadEntry key={e.entryId} entry={e} />
+        {entryGroups.map(eg => (
+          <ThreadEntryGroup key={eg.entries[0].entryId} entryGroup={eg} />
         ))}
       </div>
     </ScrollArea>

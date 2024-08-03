@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { parseISO, subMinutes } from 'date-fns';
 
 
 const toCamelCase = (item) => {
@@ -50,6 +51,57 @@ export async function fetchChatThreads(userId) {
 }
 
 
+const cleanChatEntries = (rawEntries) => {
+  const result = []
+
+  let curAuthor = null;
+  let curTimestamp = new Date(1900, 1, 1);
+  let curEntries = [];
+
+  const pushGroup = () => {
+    if (curEntries.length) {
+      result.push({
+        author: curAuthor,
+        entries: curEntries
+      });
+      curEntries = [];
+    }
+  }
+
+  const pick = (object, keys) => {
+    return keys.reduce((obj, key) => {
+       if (object && object.hasOwnProperty(key)) {
+          obj[key] = object[key];
+       }
+       return obj;
+     }, {});
+  }
+
+  for (const entry of rawEntries) {
+    if (entry.author !== curAuthor) {
+      pushGroup();
+      curAuthor = entry.author;
+    }
+
+    const newTimestamp = parseISO(entry.timestamp);
+    if (subMinutes(newTimestamp, 15) > curTimestamp) {
+      pushGroup();
+    }
+    curTimestamp = newTimestamp
+
+    const commonProps = ['entryId', 'timestamp', 'type'];
+    if (entry.type === 'im-text') {
+      curEntries.push(pick(entry, [...commonProps, 'content']))
+    } else if (entry.type === 'im-link') {
+      curEntries.push(pick(entry, [...commonProps, 'text', 'uri']))
+    }
+  }
+  pushGroup();
+
+  return result;
+}
+
+
 export async function fetchChatEntries(threadId, userId) {
   const data = await sql`
     SELECT *
@@ -74,5 +126,6 @@ export async function fetchChatEntries(threadId, userId) {
     ORDER BY timestamp, type DESC
   `;
 
-  return toCamelCase(data.rows);
+  const result = cleanChatEntries(toCamelCase(data.rows));
+  return result;
 }

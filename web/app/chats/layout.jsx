@@ -36,6 +36,11 @@ const ThreadListEntrySkeleton = () => (
   </div>
 );
 
+const cleanAuthor = (author) => {
+  const firstName = author.split(/[\.\-]/)[0];
+  return `${firstName[0].toUpperCase()}${firstName.substring(1)}`;
+}
+
 const ThreadListEntry = ({ thread, isActive }) => (
   <Link
     key={thread.threadId}
@@ -58,8 +63,8 @@ const ThreadListEntry = ({ thread, isActive }) => (
     </div>
     <div className="line-clamp-1 text-xs text-muted-foreground">
       {thread.content
-        ? `${thread.author}: ${thread.content}`
-        : `${thread.author} sent a message`}
+        ? `${cleanAuthor(thread.author)}: ${thread.content}`
+        : `${cleanAuthor(thread.author)} sent a message`}
     </div>
   </Link>
 );

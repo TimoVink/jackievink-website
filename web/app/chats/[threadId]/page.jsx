@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { fetchChatEntries, fetchAllChatThreadIds } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 
 const USER = 'timo.vink';
@@ -45,24 +46,42 @@ const ThreadTextEntry = ({ entryId, author, content }) => (
   </ThreadBubble>
 );
 
-const ThreadLinkEntry = ({ entryId, author, text, uri }) => (
+const ThreadLinkEntry = ({ entryId, author, linkText, linkUri }) => (
   <ThreadBubble entryId={entryId} author={author} outline>
-    <a href={uri} className="space-x-2">
+    <a href={linkUri} className="space-x-2">
       <LinkIcon
         className="inline"
         size="1em"
         strokeWidth={3}
       />
-      <span>{text || uri}</span>
+      <span>{linkText || linkUri}</span>
     </a>
   </ThreadBubble>
 );
+
+const ThreadVisualMediaEntry = ({ entryId, author, mediaUri }) => (
+  <div
+    id={`entry-${entryId}`}
+    className={cn(
+      'w-full flex',
+      author === USER ? 'justify-end' : 'justify-start'
+    )}
+  >
+    <Image
+      className="max-w-64 max-h-64 !relative !w-auto !h-auto rounded-2xl"
+      src={`https://static.jackievink.com/${mediaUri}`}
+      fill
+    />
+  </div>
+)
 
 const ThreadEntry = ({ entry }) => {
   if (entry.type === 'im-text') {
     return <ThreadTextEntry {...entry} />
   } else if (entry.type === 'im-link') {
     return <ThreadLinkEntry {...entry} />
+  } else if (entry.type === 'im-media-visual') {
+    return <ThreadVisualMediaEntry {...entry} />
   }
 
   return <div />;

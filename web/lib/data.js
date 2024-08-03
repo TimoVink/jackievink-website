@@ -93,7 +93,9 @@ const cleanChatEntries = (rawEntries) => {
     if (entry.type === 'im-text') {
       curEntries.push(pick(entry, [...commonProps, 'content']))
     } else if (entry.type === 'im-link') {
-      curEntries.push(pick(entry, [...commonProps, 'text', 'uri']))
+      curEntries.push(pick(entry, [...commonProps, 'linkText', 'linkUri']))
+    } else if (entry.type === 'im-media-visual' && entry.mediaType === 'photo') {
+      curEntries.push(pick(entry, [...commonProps, 'mediaType', 'mediaName', 'mediaUri']))
     }
   }
   pushGroup();
@@ -112,18 +114,22 @@ export async function fetchChatEntries(threadId, userId) {
         e.timestamp,
         e.author,
         et.content,
-        el.text,
-        el.uri
+        el.text AS link_text,
+        el.uri AS link_uri,
+        em.type AS media_type,
+        em.name AS media_name,
+        em.uri AS media_uri
       FROM entries e
-      INNER JOIN entry_access a USING (entry_id)
+      INNER JOIN entry_access ea USING (entry_id)
       LEFT JOIN entry_text et USING (entry_id)
       LEFT JOIN entry_links el USING (entry_id)
+      LEFT JOIN entry_media em USING (entry_id)
       WHERE e.thread_id = ${threadId}
-      AND a.identity = ${userId}
+      AND ea.identity = ${userId}
       ORDER BY e.timestamp DESC
       LIMIT 1000
     )
-    ORDER BY timestamp, type DESC
+    ORDER BY timestamp, type DESC, entry_id
   `;
 
   const result = cleanChatEntries(toCamelCase(data.rows));

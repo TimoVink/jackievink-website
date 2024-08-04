@@ -1,12 +1,15 @@
+import { Suspense } from 'react';
+import Image from 'next/image';
 import { Link as LinkIcon } from 'lucide-react';
 import Markdown from 'react-markdown'
+
+import Loading from './loading';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { fetchChatEntries, fetchAllChatThreadIds } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 
 
 const USER = 'timo.vink';
@@ -112,10 +115,12 @@ const ThreadDisplay = async ({ threadId }) => {
 
   return (
     <ScrollArea>
-      <div className="p-8 space-y-1">
-        {entryGroups.map(eg => (
-          <ThreadEntryGroup key={eg.entries[0].entryId} entryGroup={eg} />
-        ))}
+      <div className="h-full p-8 space-y-1 flex flex-col-reverse overflow-y-auto">
+        <div>
+          {entryGroups.map(eg => (
+            <ThreadEntryGroup key={eg.entries[0].entryId} entryGroup={eg} />
+          ))}
+        </div>
       </div>
     </ScrollArea>
   );
@@ -128,7 +133,9 @@ export async function generateStaticParams() {
 }
 
 const Page = ({ params }) => (
-  <ThreadDisplay threadId={params.threadId} />
+  <Suspense fallback={<Loading />}>
+    <ThreadDisplay threadId={params.threadId} />
+  </Suspense>
 );
 
 

@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cn } from '@/lib/utils';
 
 import NavLink from '@/components/navlink';
+import ReactQueryProvider from '@/components/providers';
 
 import './globals.css';
 
@@ -48,10 +49,12 @@ const RootLayout = ({ children }) => (
       )}
     >
       <div className="h-screen w-screen p-4">
-        <div className="w-full h-full flex flex-col bg-white border rounded-2xl shadow-xl">
+        <div className="w-full h-full flex flex-col bg-white border rounded-2xl shadow-xl overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto">
-            {children}
+            <ReactQueryProvider>
+              {children}
+            </ReactQueryProvider>
           </main>
         </div>
       </div>

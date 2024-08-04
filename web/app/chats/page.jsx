@@ -1,30 +1,12 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-
-import { fetchLatestChatThreadId } from '@/lib/data';
-import Spinner from '@/components/ui/spinner';
+import { Layout, ThreadEntriesSuspenseContainer, ThreadListSuspenseContainer } from './components-server';
 
 
-const USER = 'timo.vink';
-
-
-const Loading = () => (
-  <div className="h-full w-full flex flex-col justify-center">
-    <div className="w-full flex justify-center">
-      <Spinner />
-    </div>
-  </div>
-)
-
-const Redirect = async () => {
-  const threadId = await fetchLatestChatThreadId(USER);
-  redirect(`/chats/${threadId}`);
-}
-
-const Page = () => (
-  <Suspense fallback={<Loading />}>
-    <Redirect />
-  </Suspense>
+const Page = ({ searchParams }) => (
+  <Layout
+    threadId={searchParams.id}
+    listComponent={<ThreadListSuspenseContainer threadId={searchParams.id} />}
+    detailComponent={<ThreadEntriesSuspenseContainer threadId={searchParams.id} />}
+  />
 );
 
 

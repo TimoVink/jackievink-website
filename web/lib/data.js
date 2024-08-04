@@ -1,11 +1,28 @@
-import { sql } from '@vercel/postgres';
-import { parseISO, subMinutes } from 'date-fns';
+'use server';
+
+import { subMinutes } from 'date-fns';
+import { Pool } from 'pg';
+
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+});
+
+const sql = async (query) => {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(query);
+    return res.rows;
+  } finally {
+    client.release();
+  }
+}
 
 
 const toCamelCase = (item) => {
   if (Array.isArray(item)) {
     return item.map(el => toCamelCase(el));
-  } else if (typeof item === 'function' || item !== Object(item)) {
+  } else if (typeof item === 'function' || item !== Object(item) || item instanceof Date) {
     return item;
   }
   return Object.fromEntries(
@@ -18,36 +35,36 @@ const toCamelCase = (item) => {
 
 
 export async function fetchAllChatThreadIds() {
-  const data = await sql`
+  const data = await sql(`
     SELECT DISTINCT thread_id
     FROM threads
     WHERE type = 'instant-message'
-  `;
+  `);
 
-  return data.rows.map(x => x.thread_id);
+  return data.map(x => x.thread_id);
 }
 
 
 export async function fetchLatestChatThreadId(userId) {
-  const data = await sql`
+  const data = await sql(`
     SELECT thread_id
-    FROM pf_im_latest_thread_id
-    WHERE identity = ${userId}
-  `;
+    FROM perf_chat_latest_thread_id
+    WHERE identity = '${userId}'
+  `);
 
-  return data.rows[0]['thread_id'];
+  return data[0]['thread_id'];
 }
 
 
 export async function fetchChatThreads(userId) {
-  const data = await sql`
+  const data = await sql(`
     SELECT thread_id, source, title, timestamp, author, content
-    FROM pf_im_threads_list
-    WHERE identity = ${userId}
+    FROM perf_chat_threads_list
+    WHERE identity = '${userId}'
     ORDER BY timestamp DESC
-  `;
+  `);
 
-  return toCamelCase(data.rows);
+  return toCamelCase(data);
 }
 
 
@@ -83,11 +100,10 @@ const cleanChatEntries = (rawEntries) => {
       curAuthor = entry.author;
     }
 
-    const newTimestamp = parseISO(entry.timestamp);
-    if (subMinutes(newTimestamp, 15) > curTimestamp) {
+    if (subMinutes(entry.timestamp, 15) > curTimestamp) {
       pushGroup();
     }
-    curTimestamp = newTimestamp
+    curTimestamp = entry.timestamp
 
     const commonProps = ['entryId', 'timestamp', 'type'];
     if (entry.type === 'im-text') {
@@ -105,7 +121,7 @@ const cleanChatEntries = (rawEntries) => {
 
 
 export async function fetchChatEntries(threadId, userId) {
-  const data = await sql`
+  const data = await sql(`
     SELECT *
     FROM (
       SELECT
@@ -124,14 +140,14 @@ export async function fetchChatEntries(threadId, userId) {
       LEFT JOIN entry_text et USING (entry_id)
       LEFT JOIN entry_links el USING (entry_id)
       LEFT JOIN entry_media em USING (entry_id)
-      WHERE e.thread_id = ${threadId}
-      AND ea.identity = ${userId}
+      WHERE e.thread_id = '${threadId}'
+      AND ea.identity = '${userId}'
       ORDER BY e.timestamp DESC
-      LIMIT 1000
-    )
+      LIMIT 128
+    ) x
     ORDER BY timestamp, type DESC, entry_id
-  `;
+  `);
 
-  const result = cleanChatEntries(toCamelCase(data.rows));
+  const result = cleanChatEntries(toCamelCase(data));
   return result;
 }

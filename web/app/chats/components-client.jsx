@@ -53,7 +53,7 @@ const cleanChatEntries = (rawEntries) => {
     } else if (entry.type === 'im-link') {
       curEntries.push(pick(entry, [...commonProps, 'linkText', 'linkUri']))
     } else if (entry.type === 'im-media-visual' && entry.mediaType === 'photo') {
-      curEntries.push(pick(entry, [...commonProps, 'mediaType', 'mediaName', 'mediaUri']))
+      curEntries.push(pick(entry, [...commonProps, 'mediaType', 'mediaName', 'mediaUri', 'mediaAspectWidth', 'mediaAspectHeight', 'mediaPlaceholder']))
     }
   }
   pushGroup();

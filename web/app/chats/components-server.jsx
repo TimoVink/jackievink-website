@@ -29,7 +29,7 @@ export const Loading = () => (
 );
 
 export const Card = ({ className, children }) => (
-  <div className={cn("rounded-2xl bg-white h-full", className)}>
+  <div className={cn("rounded-2xl bg-white h-full shadow-md", className)}>
     {children}
   </div>
 );
@@ -181,7 +181,7 @@ const ThreadLinkEntry = ({ entryId, author, linkText, linkUri }) => (
   </ThreadBubble>
 );
 
-const ThreadVisualMediaEntry = ({ entryId, author, mediaUri }) => (
+const ThreadVisualMediaEntry = ({ entryId, author, mediaUri, mediaAspectWidth, mediaAspectHeight, mediaPlaceholder }) => (
   <div
     id={`entry-${entryId}`}
     className={cn(
@@ -189,11 +189,26 @@ const ThreadVisualMediaEntry = ({ entryId, author, mediaUri }) => (
       author === USER ? 'justify-end' : 'justify-start'
     )}
   >
-    <Image
-      className="max-w-96 max-h-96 !relative !w-auto !h-auto rounded-2xl"
-      src={`https://static.jackievink.com/${mediaUri}`}
-      fill
-    />
+    {mediaAspectWidth && mediaAspectHeight
+      ? (
+        <Image
+          className="rounded-2xl"
+          src={`https://static.jackievink.com/${mediaUri}`}
+          width={Math.floor(mediaAspectWidth * 400)}
+          height={Math.floor(mediaAspectHeight * 400)}
+          placeholder='blur'
+          blurDataURL={mediaPlaceholder}
+        />
+      ) : (
+        <Image
+          className="max-w-96 max-h-96 !relative !w-auto !h-auto rounded-2xl"
+          src={`https://static.jackievink.com/${mediaUri}`}
+          placeholder='blur'
+          blurDataURL={mediaPlaceholder}
+          fill
+        />
+      )
+    }
   </div>
 )
 

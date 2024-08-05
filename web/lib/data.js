@@ -81,7 +81,10 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
         el.uri AS link_uri,
         em.type AS media_type,
         em.name AS media_name,
-        em.uri AS media_uri
+        em.uri AS media_uri,
+        em.aspect_width AS media_aspect_width,
+        em.aspect_height AS media_aspect_height,
+        em.placeholder AS media_placeholder
       FROM entries e
       INNER JOIN entry_access ea USING (entry_id)
       LEFT JOIN entry_text et USING (entry_id)

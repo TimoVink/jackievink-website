@@ -2,7 +2,7 @@ import './spinner.css';
 
 
 export const Spinner = () => (
-  <div className="loader">
+  <div className="tv-loader">
   </div>
 );
 

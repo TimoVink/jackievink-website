@@ -1,6 +1,5 @@
 'use server';
 
-import { subMinutes } from 'date-fns';
 import { Pool } from 'pg';
 
 
@@ -68,59 +67,7 @@ export async function fetchChatThreads(userId) {
 }
 
 
-const cleanChatEntries = (rawEntries) => {
-  const result = []
-
-  let curAuthor = null;
-  let curTimestamp = new Date(1900, 1, 1);
-  let curEntries = [];
-
-  const pushGroup = () => {
-    if (curEntries.length) {
-      result.push({
-        author: curAuthor,
-        entries: curEntries
-      });
-      curEntries = [];
-    }
-  }
-
-  const pick = (object, keys) => {
-    return keys.reduce((obj, key) => {
-       if (object && object.hasOwnProperty(key)) {
-          obj[key] = object[key];
-       }
-       return obj;
-     }, {});
-  }
-
-  for (const entry of rawEntries) {
-    if (entry.author !== curAuthor) {
-      pushGroup();
-      curAuthor = entry.author;
-    }
-
-    if (subMinutes(entry.timestamp, 15) > curTimestamp) {
-      pushGroup();
-    }
-    curTimestamp = entry.timestamp
-
-    const commonProps = ['entryId', 'timestamp', 'type'];
-    if (entry.type === 'im-text') {
-      curEntries.push(pick(entry, [...commonProps, 'content']))
-    } else if (entry.type === 'im-link') {
-      curEntries.push(pick(entry, [...commonProps, 'linkText', 'linkUri']))
-    } else if (entry.type === 'im-media-visual' && entry.mediaType === 'photo') {
-      curEntries.push(pick(entry, [...commonProps, 'mediaType', 'mediaName', 'mediaUri']))
-    }
-  }
-  pushGroup();
-
-  return result;
-}
-
-
-export async function fetchChatEntries(threadId, userId) {
+export async function fetchChatEntries(threadId, userId, limit, offset) {
   const data = await sql(`
     SELECT *
     FROM (
@@ -143,11 +90,11 @@ export async function fetchChatEntries(threadId, userId) {
       WHERE e.thread_id = '${threadId}'
       AND ea.identity = '${userId}'
       ORDER BY e.timestamp DESC
-      LIMIT 128
+      LIMIT ${limit || 64} OFFSET ${offset || 0}
     ) x
     ORDER BY timestamp, type DESC, entry_id
   `);
 
-  const result = cleanChatEntries(toCamelCase(data));
+  const result = toCamelCase(data);
   return result;
 }

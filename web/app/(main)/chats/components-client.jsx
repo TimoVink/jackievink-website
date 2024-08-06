@@ -5,12 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { subMinutes } from 'date-fns';
 
-import { ScrollContainer, ThreadListEntry, ThreadEntryGroup, ThreadEntriesSkeleton } from './components-server';
+import { ScrollContainer, ThreadListEntry, ThreadEntryGroup, ThreadEntriesSkeleton, ThreadListSkeleton } from './components-server';
 import { makeApiCall, useApiCall } from '@/lib/api';
 import Spinner from '@/components/ui/spinner';
 
 
-const cleanChatEntries = (rawEntries) => {
+const cleanChatEntries = (userId, rawEntries) => {
   const result = []
 
   let curAuthor = null;
@@ -21,7 +21,8 @@ const cleanChatEntries = (rawEntries) => {
     if (curEntries.length) {
       result.push({
         author: curAuthor,
-        entries: curEntries
+        userIsAuthor: userId === curAuthor,
+        entries: curEntries,
       });
       curEntries = [];
     }
@@ -62,7 +63,7 @@ const cleanChatEntries = (rawEntries) => {
 }
 
 
-export const ThreadEntriesFetch = ({ threadId }) => {
+export const ThreadEntriesFetch = ({ userId, threadId }) => {
   const [entries, setEntries] = useState([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -91,7 +92,7 @@ export const ThreadEntriesFetch = ({ threadId }) => {
       .catch((err) => console.log(err));
   };
 
-  const cleanEntries = cleanChatEntries(entries);
+  const cleanEntries = cleanChatEntries(userId, entries);
 
   if (!entries.length) {
     return <ThreadEntriesSkeleton />;
@@ -122,12 +123,12 @@ export const ThreadEntriesFetch = ({ threadId }) => {
 }
 
 
-export const ThreadEntries = () => {
+export const ThreadEntries = ({ userId }) => {
   const searchParams = useSearchParams();
   const threadId = searchParams.get('id');
 
   const result = threadId
-    ? <ThreadEntriesFetch threadId={threadId} />
+    ? <ThreadEntriesFetch userId={userId} threadId={threadId} />
     : <ThreadEntriesSkeleton />;
 
   return result;
@@ -139,7 +140,11 @@ export const ThreadList = ({ threadId }) => {
   const { data } = useApiCall('api/chat/threads');
   const allThreadIds = new Set(data.map(t => t.threadId));
   if (!allThreadIds.has(threadId)) {
-    router.replace(`chats?id=${data[0].threadId}`);
+    if (data && data.length) {
+      router.replace(`chats?id=${data[0].threadId}`);
+    } else {
+      return <ThreadListSkeleton />;
+    }
   }
 
   return (

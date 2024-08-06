@@ -33,6 +33,18 @@ const toCamelCase = (item) => {
 };
 
 
+export async function getUserProfile(email) {
+  const data = await sql(`
+    SELECT ud.user_id, ul.email, ud.first_name, ud.full_name
+    FROM user_lookup ul
+    JOIN user_details ud USING (user_id)
+    WHERE email ILIKE '${email}'
+  `);
+
+  return toCamelCase(data)[0];
+}
+
+
 export async function fetchAllChatThreadIds() {
   const data = await sql(`
     SELECT DISTINCT thread_id

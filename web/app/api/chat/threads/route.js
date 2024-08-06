@@ -1,8 +1,9 @@
 import { fetchChatThreads } from '@/lib/data';
-import { userId } from '@/lib/auth';
+import { auth } from '@/auth';
 
 
 export const GET = async () => {
-  const data = await fetchChatThreads(userId);
+  const session = await auth();
+  const data = await fetchChatThreads(session.user.id);
   return Response.json(data);
 }

@@ -14,10 +14,7 @@ import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
 
 import { ThreadEntries, ThreadList } from './components-client';
-
-
-import { userId } from '@/lib/auth';
-const USER = userId;
+import { auth } from '@/auth';
 
 
 export const Loading = () => (
@@ -134,12 +131,12 @@ export const ThreadListSuspenseContainer = ({ threadId }) => (
 );
 
 
-const ThreadBubble = ({ entryId, author, outline, children }) => (
+const ThreadBubble = ({ entryId, userIsAuthor, outline, children }) => (
   <div
     id={`entry-${entryId}`}
     className={cn(
       'w-full flex text-md',
-      author === USER ? 'justify-end' : 'justify-start'
+      userIsAuthor ? 'justify-end' : 'justify-start'
     )}
   >
     <div className={cn(
@@ -147,12 +144,12 @@ const ThreadBubble = ({ entryId, author, outline, children }) => (
       outline
         ? cn(
           'border bg-white text-primary',
-          author === USER
+          userIsAuthor
             ? 'border-primary text-primary'
             : 'border-muted-foreground text-muted-foreground',
         )
         : cn(
-          author === USER
+          userIsAuthor
             ? 'text-primary-foreground bg-primary'
             : 'text-inherit bg-muted',
         )
@@ -162,14 +159,14 @@ const ThreadBubble = ({ entryId, author, outline, children }) => (
   </div>
 );
 
-const ThreadTextEntry = ({ entryId, author, content }) => (
-  <ThreadBubble entryId={entryId} author={author}>
+const ThreadTextEntry = ({ entryId, userIsAuthor, content }) => (
+  <ThreadBubble entryId={entryId} userIsAuthor={userIsAuthor}>
     <Markdown>{emojify(content)}</Markdown>
   </ThreadBubble>
 );
 
-const ThreadLinkEntry = ({ entryId, author, linkText, linkUri }) => (
-  <ThreadBubble entryId={entryId} author={author} outline>
+const ThreadLinkEntry = ({ entryId, userIsAuthor, linkText, linkUri }) => (
+  <ThreadBubble entryId={entryId} userIsAuthor={userIsAuthor} outline>
     <a href={linkUri} className="space-x-2">
       <LinkIcon
         className="inline"
@@ -181,12 +178,12 @@ const ThreadLinkEntry = ({ entryId, author, linkText, linkUri }) => (
   </ThreadBubble>
 );
 
-const ThreadVisualMediaEntry = ({ entryId, author, mediaUri, mediaAspectWidth, mediaAspectHeight, mediaPlaceholder }) => (
+const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWidth, mediaAspectHeight, mediaPlaceholder }) => (
   <div
     id={`entry-${entryId}`}
     className={cn(
       'w-full flex',
-      author === USER ? 'justify-end' : 'justify-start'
+      userIsAuthor ? 'justify-end' : 'justify-start'
     )}
   >
     {mediaAspectWidth && mediaAspectHeight
@@ -227,14 +224,14 @@ const ThreadEntry = ({ entry }) => {
 
 export const ThreadEntryGroup = ({ entryGroup }) => (
   <div>
-    {entryGroup.author !== USER && (
+    {!entryGroup.userIsAuthor && (
       <div className="px-4 pt-2 pb-0.5 text-[0.67rem] tracking-wide text-muted-foreground">
         {cleanAuthor(entryGroup.author)}
       </div>
     )}
     <div className="space-y-1">
       {entryGroup.entries.map(e => (
-        <ThreadEntry key={e.entryId} entry={({ ...e, author: entryGroup.author })} />
+        <ThreadEntry key={e.entryId} entry={({ ...e, userIsAuthor: entryGroup.userIsAuthor })} />
       ))}
     </div>
   </div>
@@ -248,11 +245,14 @@ export const ThreadEntriesSkeleton = () => (
 );
 
 
-export const ThreadEntriesSuspenseContainer = ({ threadId }) => (
-  <Suspense key={threadId} fallback={<ThreadEntriesSkeleton />}>
-    <ThreadEntries />
-  </Suspense>
-);
+export const ThreadEntriesSuspenseContainer = async ({ threadId }) => {
+  const session = await auth();
+  return (
+    <Suspense key={threadId} fallback={<ThreadEntriesSkeleton />}>
+      <ThreadEntries userId={session.user.id} />
+    </Suspense>
+  );
+}
 
 
 export const Layout = ({ listComponent, detailComponent }) => (

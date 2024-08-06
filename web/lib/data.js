@@ -56,16 +56,6 @@ export async function fetchAllChatThreadIds() {
 }
 
 
-export async function fetchLatestChatThreadId(userId) {
-  const data = await sql(`
-    SELECT thread_id
-    FROM perf_chat_latest_thread_id
-    WHERE identity = '${userId}'
-  `);
-
-  return data[0]['thread_id'];
-}
-
 
 export async function fetchChatThreads(userId) {
   const data = await sql(`
@@ -108,6 +98,31 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
       LIMIT ${limit || 64} OFFSET ${offset || 0}
     ) x
     ORDER BY timestamp, type DESC, entry_id
+  `);
+
+  const result = toCamelCase(data);
+  return result;
+}
+
+
+export async function fetchMediaItems(userId) {
+  const data = await sql(`
+    SELECT
+      e.entry_id,
+      e.timestamp,
+      e.author,
+      em.type AS media_type,
+      em.name AS media_name,
+      em.uri AS media_uri,
+      em.aspect_width AS media_aspect_width,
+      em.aspect_height AS media_aspect_height,
+      em.placeholder AS media_placeholder
+    FROM entries e
+    INNER JOIN entry_access ea USING (entry_id)
+    INNER JOIN entry_media em USING (entry_id)
+    WHERE ea.identity = '${userId}'
+    AND author IN ('${userId}', 'jackie.vink')
+    ORDER BY e.timestamp DESC
   `);
 
   const result = toCamelCase(data);

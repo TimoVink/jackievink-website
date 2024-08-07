@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import NavLink from '@/components/navlink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -90,7 +92,9 @@ const Header = () => (
       <div className="flex-1" />
       <HeaderNav />
       <div className="flex-1 flex justify-end">
-        <HeaderSessionControl />
+        <Suspense>
+          <HeaderSessionControl />
+        </Suspense>
       </div>
     </div>
   </header>

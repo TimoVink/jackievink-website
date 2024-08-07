@@ -5,7 +5,7 @@ import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
 
 import { ScrollContainer, ThreadListEntry, ThreadEntriesSkeleton, ThreadListSkeleton, Card } from './components-server';
-import { useApiCall } from '@/lib/api';
+import { makeApiCall } from '@/lib/api';
 
 
 export const ThreadEntry = async ({ entry }) => {
@@ -21,8 +21,8 @@ export const ThreadEntry = async ({ entry }) => {
 };
 
 
-export const ThreadEntriesFetch = ({ threadId }) => {
-  const { data } = useApiCall(`api/email/entries?threadId=${threadId}`)
+export const ThreadEntriesFetch = async ({ threadId }) => {
+  const data = await makeApiCall(`api/email/entries?threadId=${threadId}`)
 
   return (
     <div>
@@ -45,9 +45,9 @@ export const ThreadEntries = () => {
 }
 
 
-export const ThreadList = ({ threadId }) => {
+export const ThreadList = async ({ threadId }) => {
   const router = useRouter();
-  const { data } = useApiCall('api/email/threads');
+  const data = await makeApiCall('api/email/threads');
   const allThreadIds = new Set(data.map(t => t.threadId));
   if (!allThreadIds.has(threadId)) {
     if (data && data.length) {

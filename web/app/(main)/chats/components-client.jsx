@@ -6,7 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { subMinutes } from 'date-fns';
 
 import { ScrollContainer, ThreadListEntry, ThreadEntryGroup, ThreadEntriesSkeleton, ThreadListSkeleton } from './components-server';
-import { makeApiCall, useApiCall } from '@/lib/api';
+import { makeApiCall } from '@/lib/api';
 import Spinner from '@/components/ui/spinner';
 
 
@@ -72,9 +72,9 @@ export const ThreadEntriesFetch = ({ userId, threadId }) => {
 
   useEffect(() => {
     makeApiCall(`api/chat/entries?threadId=${threadId}&limit=${INITIAL_LIMIT}&offset=${entries.length}`)
-      .then((res) => {
-        setEntries(res);
-        if (res.length < INITIAL_LIMIT) {
+      .then((data) => {
+        setEntries(data);
+        if (data.length < INITIAL_LIMIT) {
           setHasMore(false);
         }
       })
@@ -83,9 +83,9 @@ export const ThreadEntriesFetch = ({ userId, threadId }) => {
 
   const fetchMoreEntries = () => {
     makeApiCall(`api/chat/entries?threadId=${threadId}&limit=${SUBSEQ_LIMIT}&offset=${entries.length}`)
-      .then((res) => {
-        setEntries((prevItems) => [...res, ...prevItems]);
-        if (res.length < SUBSEQ_LIMIT) {
+      .then((data) => {
+        setEntries((prevItems) => [...data, ...prevItems]);
+        if (data.length < SUBSEQ_LIMIT) {
           setHasMore(false);
         }
       })
@@ -135,9 +135,9 @@ export const ThreadEntries = ({ userId }) => {
 }
 
 
-export const ThreadList = ({ threadId }) => {
+export const ThreadList = async ({ threadId }) => {
   const router = useRouter();
-  const { data } = useApiCall('api/chat/threads');
+  const data = await makeApiCall('api/chat/threads');
   const allThreadIds = new Set(data.map(t => t.threadId));
   if (!allThreadIds.has(threadId)) {
     if (data && data.length) {

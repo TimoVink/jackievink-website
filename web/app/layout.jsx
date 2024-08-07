@@ -3,8 +3,6 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cn } from '@/lib/utils';
 
-import ReactQueryProvider from '@/components/providers';
-
 import './globals.css';
 
 
@@ -27,9 +25,7 @@ const RootLayout = ({ children }) => (
       )}
     >
       <div className="h-screen w-screen p-4">
-        <ReactQueryProvider>
-          {children}
-        </ReactQueryProvider>
+        {children}
       </div>
       <Analytics />
       <SpeedInsights />

@@ -2,8 +2,11 @@ import { fetchChatThreads } from '@/lib/data';
 import { auth } from '@/auth';
 
 
-export const GET = async () => {
-  const session = await auth();
-  const data = await fetchChatThreads(session.user.id);
+export const GET = auth(async (req) => {
+  if (!req.auth) {
+    return Response.json({ message: "Not authenticated" }, { status: 401 })
+  }
+
+  const data = await fetchChatThreads(req.auth.user.id);
   return Response.json(data);
-}
+});

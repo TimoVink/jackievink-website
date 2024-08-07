@@ -144,6 +144,7 @@ export async function fetchMediaItems(userId) {
     WHERE ea.identity = '${userId}'
     AND author IN ('${userId}', 'jackie.vink')
     ORDER BY e.timestamp DESC
+    LIMIT 256
   `);
 
   const result = toCamelCase(data);

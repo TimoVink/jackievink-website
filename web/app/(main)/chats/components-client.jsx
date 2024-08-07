@@ -6,7 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { subMinutes } from 'date-fns';
 
 import { ScrollContainer, ThreadListEntry, ThreadEntryGroup, ThreadEntriesSkeleton, ThreadListSkeleton } from './components-server';
-import { makeApiCall } from '@/lib/api';
+import { useApiCall, makeApiCall } from '@/lib/api';
 import Spinner from '@/components/ui/spinner';
 
 
@@ -135,9 +135,9 @@ export const ThreadEntries = ({ userId }) => {
 }
 
 
-export const ThreadList = async ({ threadId }) => {
+export const ThreadList = ({ threadId }) => {
   const router = useRouter();
-  const data = await makeApiCall('api/chat/threads');
+  const { data } = useApiCall('api/chat/threads');
   const allThreadIds = new Set(data.map(t => t.threadId));
   if (!allThreadIds.has(threadId)) {
     if (data && data.length) {

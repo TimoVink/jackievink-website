@@ -1,11 +1,14 @@
-export const makeApiCall = async (url) => {
-  const resp = await fetch(`${process.env.BASE_URL || ''}/${url}`)
-  const text = await resp.text();
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-  try {
-    return JSON.parse(text);
-  } catch (exc) {
-    console.error('Expected JSON', text);
-    throw exc;
-  }
-}
+
+const defaultOptions = {
+  staleTime: 24 * 60 * 60 * 1000 // 1 day
+};
+
+export const makeApiCall = (url) => fetch(`${process.env.BASE_URL || ''}/${url}`).then(x => x.json());
+
+export const useApiCall = (url, options) => useSuspenseQuery({
+    queryKey: [url],
+    queryFn: () => makeApiCall(url),
+    ...{ ...defaultOptions, ...options }
+});

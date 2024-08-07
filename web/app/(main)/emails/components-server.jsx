@@ -21,7 +21,7 @@ export const Loading = () => (
 );
 
 export const Card = ({ className, children }) => (
-  <div className={cn("rounded-2xl bg-white h-full shadow-md", className)}>
+  <div className={cn("rounded-2xl bg-white shadow-md", className)}>
     {children}
   </div>
 );
@@ -31,6 +31,19 @@ const cleanAuthor = (author) => {
   const firstName = author.split(/[\.\-]/)[0];
   return `${firstName[0].toUpperCase()}${firstName.substring(1)}`;
 }
+
+
+export const ThreadEntryScrollContainer = ({ children }) => (
+  <div className="h-full p-1">
+    <ScrollArea>
+      <div className={cn(
+        "space-y-4 pl-1 py-3 pr-4",
+      )}>
+        {children}
+      </div>
+    </ScrollArea>
+  </div>
+);
 
 
 export const ThreadListEntry = ({ thread, isActive }) => (
@@ -77,28 +90,28 @@ const ThreadListEntrySkeleton = () => (
 );
 
 
-export const ScrollContainer = ({ children, holdPadding }) => (
-  <Card>
-    <div className="py-4 px-1 h-full">
-      <ScrollArea>
-        <div className={cn(
-          "space-y-2 h-full",
-          !holdPadding && 'px-3'
-        )}>
-          {children}
-        </div>
-      </ScrollArea>
-    </div>
-  </Card>
+export const ThreadListScrollContainer = ({ children, holdPadding }) => (
+  <div className="py-4 px-1 h-full">
+    <ScrollArea>
+      <div className={cn(
+        "space-y-2 h-full",
+        !holdPadding && 'px-3'
+      )}>
+        {children}
+      </div>
+    </ScrollArea>
+  </div>
 );
 
 
 export const ThreadListSkeleton = () => (
-  <ScrollContainer>
-    {Array(32).fill().map((_, i) => (
-      <ThreadListEntrySkeleton key={i} />
-    ))}
-  </ScrollContainer>
+  <Card className="h-full">
+    <ThreadListScrollContainer>
+      {Array(32).fill().map((_, i) => (
+        <ThreadListEntrySkeleton key={i} />
+      ))}
+    </ThreadListScrollContainer>
+  </Card>
 );
 
 
@@ -110,9 +123,7 @@ export const ThreadListSuspenseContainer = ({ threadId }) => (
 
 
 export const ThreadEntriesSkeleton = () => (
-  <ScrollContainer>
-    <Loading />
-  </ScrollContainer>
+  <Loading />
 );
 
 
@@ -131,7 +142,7 @@ export const Layout = ({ listComponent, detailComponent }) => (
     <div className="flex-none w-[28rem] p-4 pr-2">
       {listComponent}
     </div>
-    <div className="flex-1 p-4 pl-2">
+    <div className="flex-1">
       {detailComponent}
     </div>
   </div>

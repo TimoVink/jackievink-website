@@ -4,14 +4,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
 
-import { ScrollContainer, ThreadListEntry, ThreadEntriesSkeleton, ThreadListSkeleton, Card } from './components-server';
-import { makeApiCall } from '@/lib/api';
+import { ThreadListEntry, ThreadEntriesSkeleton, ThreadListSkeleton, Card, ThreadListScrollContainer, ThreadEntryScrollContainer } from './components-server';
+import { useApiCall, useTextApiCall } from '@/lib/api';
 
 
-export const ThreadEntry = async ({ entry }) => {
-  const data = await fetch(`https://static.jackievink.com/${entry.emailUri}`);
-  const s = await data.text();
-  const { html, text } = extract(s);
+export const ThreadEntry = ({ entry }) => {
+  const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
+  const { html, text } = extract(data);
 
   return (
     <Card className="p-4">
@@ -21,15 +20,15 @@ export const ThreadEntry = async ({ entry }) => {
 };
 
 
-export const ThreadEntriesFetch = async ({ threadId }) => {
-  const data = await makeApiCall(`api/email/entries?threadId=${threadId}`)
+export const ThreadEntriesFetch = ({ threadId }) => {
+  const { data } = useApiCall(`api/email/entries?threadId=${threadId}`)
 
   return (
-    <div>
+    <ThreadEntryScrollContainer>
       {data.map(e => (
         <ThreadEntry key={e.entryId} entry={e} />
       ))}
-    </div>
+    </ThreadEntryScrollContainer>
   )
 }
 
@@ -47,7 +46,7 @@ export const ThreadEntries = () => {
 
 export const ThreadList = async ({ threadId }) => {
   const router = useRouter();
-  const data = await makeApiCall('api/email/threads');
+  const { data } = useApiCall('api/email/threads');
   const allThreadIds = new Set(data.map(t => t.threadId));
   if (!allThreadIds.has(threadId)) {
     if (data && data.length) {
@@ -59,14 +58,16 @@ export const ThreadList = async ({ threadId }) => {
   }
 
   return (
-    <ScrollContainer>
-      {data.map(t => (
-        <ThreadListEntry
-          key={t.threadId}
-          thread={t}
-          isActive={threadId === t.threadId}
-        />
-      ))}
-    </ScrollContainer>
+    <Card className="h-full">
+      <ThreadListScrollContainer>
+        {data.map(t => (
+          <ThreadListEntry
+            key={t.threadId}
+            thread={t}
+            isActive={threadId === t.threadId}
+          />
+        ))}
+      </ThreadListScrollContainer>
+    </Card>
   )
 }

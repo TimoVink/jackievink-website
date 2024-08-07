@@ -45,18 +45,6 @@ export async function getUserProfile(email) {
 }
 
 
-export async function fetchAllChatThreadIds() {
-  const data = await sql(`
-    SELECT DISTINCT thread_id
-    FROM threads
-    WHERE type = 'instant-message'
-  `);
-
-  return data.map(x => x.thread_id);
-}
-
-
-
 export async function fetchChatThreads(userId) {
   const data = await sql(`
     SELECT thread_id, source, title, timestamp, author, content
@@ -98,6 +86,39 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
       LIMIT ${limit || 64} OFFSET ${offset || 0}
     ) x
     ORDER BY timestamp, type DESC, entry_id
+  `);
+
+  const result = toCamelCase(data);
+  return result;
+}
+
+
+export async function fetchEmailThreads(userId) {
+  const data = await sql(`
+    SELECT thread_id, title, timestamp, author
+    FROM perf_email_threads_list
+    WHERE identity = '${userId}'
+    ORDER BY timestamp DESC
+  `);
+
+  return toCamelCase(data);
+}
+
+
+export async function fetchEmailEntries(threadId, userId) {
+  const data = await sql(`
+    SELECT
+      e.entry_id,
+      e.timestamp,
+      e.author,
+      em.subject AS email_subject,
+      em.uri AS email_uri
+    FROM entries e
+    INNER JOIN entry_access ea USING (entry_id)
+    LEFT JOIN entry_emails em USING (entry_id)
+    WHERE e.thread_id = '${threadId}'
+    AND ea.identity = '${userId}'
+    ORDER BY e.timestamp DESC
   `);
 
   const result = toCamelCase(data);

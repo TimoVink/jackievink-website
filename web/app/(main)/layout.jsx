@@ -8,7 +8,7 @@ import { auth, signOut } from '@/auth';
 
 const links = {
   '/chats': 'Chats',
-  '/email': 'Email',
+  '/emails': 'Emails',
   '/files': 'Files',
   '/media': 'Media',
 };

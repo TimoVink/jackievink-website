@@ -1,20 +1,23 @@
 import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from "next/navigation";
 import { Link as LinkIcon } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { SiMessenger, SiInstagram, SiWhatsapp } from '@icons-pack/react-simple-icons';
 import Markdown from 'react-markdown'
 
+import { auth } from '@/auth';
+
 import { Spinner } from '@/components/ui/spinner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { fetchChatThreads } from '@/lib/data';
 import { emojify } from '@/lib/emoji';
 import { cn } from '@/lib/utils';
 
-import { ThreadEntries, ThreadList } from './components-client';
-import { auth } from '@/auth';
+import { ThreadEntries } from './components-client';
 
 
 export const Loading = () => (
@@ -113,6 +116,33 @@ export const ScrollContainer = ({ children, holdPadding }) => (
     </div>
   </Card>
 );
+
+
+const ThreadList = async ({ threadId }) => {
+  const session = await auth();
+  const data = await fetchChatThreads(session.user.id);
+
+  const allThreadIds = new Set(data.map(t => t.threadId));
+  if (!allThreadIds.has(threadId)) {
+    if (data && data.length) {
+      redirect(`chats?id=${data[0].threadId}`);
+    } else {
+      return <ThreadListSkeleton />;
+    }
+  }
+
+  return (
+    <ScrollContainer>
+      {data.map(t => (
+        <ThreadListEntry
+          key={t.threadId}
+          thread={t}
+          isActive={threadId === t.threadId}
+        />
+      ))}
+    </ScrollContainer>
+  )
+}
 
 
 export const ThreadListSkeleton = () => (

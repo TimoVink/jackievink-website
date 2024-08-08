@@ -1,15 +1,18 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { format, formatDistanceToNow } from 'date-fns';
 
 import { Spinner } from '@/components/ui/spinner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { auth } from '@/auth';
+
+import { fetchEmailThreads } from '@/lib/data';
 import { cn } from '@/lib/utils';
 
-import { ThreadEntries, ThreadList } from './components-client';
-import { auth } from '@/auth';
+import { ThreadEntries } from './components-client';
 
 
 export const Loading = () => (
@@ -102,6 +105,35 @@ export const ThreadListScrollContainer = ({ children, holdPadding }) => (
     </ScrollArea>
   </div>
 );
+
+
+const ThreadList = async ({ threadId }) => {
+  const session = await auth();
+  const data = await fetchEmailThreads(session.user.id);
+
+  const allThreadIds = new Set(data.map(t => t.threadId));
+  if (!allThreadIds.has(threadId)) {
+    if (data && data.length) {
+      redirect(`emails?id=${data[0].threadId}`);
+    } else {
+      return <ThreadListSkeleton />;
+    }
+  }
+
+  return (
+    <Card className="h-full">
+      <ThreadListScrollContainer>
+        {data.map(t => (
+          <ThreadListEntry
+            key={t.threadId}
+            thread={t}
+            isActive={threadId === t.threadId}
+          />
+        ))}
+      </ThreadListScrollContainer>
+    </Card>
+  )
+};
 
 
 export const ThreadListSkeleton = () => (

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { subMinutes } from 'date-fns';
 
-import { ScrollContainer, ThreadListEntry, ThreadEntryGroup, ThreadEntriesSkeleton, ThreadListSkeleton } from './components-server';
-import { useApiCall, makeApiCall } from '@/lib/api';
+import { ScrollContainer, ThreadEntryGroup, ThreadEntriesSkeleton } from './components-server';
+import { makeApiCall } from '@/lib/api';
 import Spinner from '@/components/ui/spinner';
 
 
@@ -132,30 +132,4 @@ export const ThreadEntries = ({ userId }) => {
     : <ThreadEntriesSkeleton />;
 
   return result;
-}
-
-
-export const ThreadList = ({ threadId }) => {
-  const router = useRouter();
-  const { data } = useApiCall('api/chat/threads');
-  const allThreadIds = new Set(data.map(t => t.threadId));
-  if (!allThreadIds.has(threadId)) {
-    if (data && data.length) {
-      router.replace(`chats?id=${data[0].threadId}`);
-    } else {
-      return <ThreadListSkeleton />;
-    }
-  }
-
-  return (
-    <ScrollContainer>
-      {data.map(t => (
-        <ThreadListEntry
-          key={t.threadId}
-          thread={t}
-          isActive={threadId === t.threadId}
-        />
-      ))}
-    </ScrollContainer>
-  )
 }

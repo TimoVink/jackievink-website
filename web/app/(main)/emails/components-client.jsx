@@ -1,10 +1,10 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
 
-import { ThreadListEntry, ThreadEntriesSkeleton, ThreadListSkeleton, Card, ThreadListScrollContainer, ThreadEntryScrollContainer } from './components-server';
+import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
 import { useApiCall, useTextApiCall } from '@/lib/api';
 
 
@@ -41,33 +41,4 @@ export const ThreadEntries = () => {
     : <ThreadEntriesSkeleton />;
 
   return result;
-}
-
-
-export const ThreadList = async ({ threadId }) => {
-  const router = useRouter();
-  const { data } = useApiCall('api/email/threads');
-  const allThreadIds = new Set(data.map(t => t.threadId));
-  if (!allThreadIds.has(threadId)) {
-    if (data && data.length) {
-      debugger;
-      router.replace(`emails?id=${data[0].threadId}`);
-    } else {
-      return <ThreadListSkeleton />;
-    }
-  }
-
-  return (
-    <Card className="h-full">
-      <ThreadListScrollContainer>
-        {data.map(t => (
-          <ThreadListEntry
-            key={t.threadId}
-            thread={t}
-            isActive={threadId === t.threadId}
-          />
-        ))}
-      </ThreadListScrollContainer>
-    </Card>
-  )
 }

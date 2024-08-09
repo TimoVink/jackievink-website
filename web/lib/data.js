@@ -47,7 +47,15 @@ export async function getUserProfile(email) {
 
 export async function fetchChatThreads(userId) {
   const data = await sql(`
-    SELECT thread_id, source, title, timestamp, author, content
+    SELECT
+      thread_id,
+      source,
+      title,
+      content,
+      timestamp,
+      author_id,
+      author_first_name,
+      author_full_name
     FROM perf_chat_threads_list
     WHERE identity = '${userId}'
     ORDER BY timestamp DESC
@@ -65,7 +73,9 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
         e.entry_id,
         e.type,
         e.timestamp,
-        e.author,
+        ud.user_id AS author_id,
+        ud.first_name AS author_first_name,
+        ud.full_name AS author_full_name,
         et.content,
         el.text AS link_text,
         el.uri AS link_uri,
@@ -77,6 +87,7 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
         em.placeholder AS media_placeholder
       FROM entries e
       INNER JOIN entry_access ea USING (entry_id)
+      INNER JOIN user_details ud ON (e.author = ud.user_id)
       LEFT JOIN entry_text et USING (entry_id)
       LEFT JOIN entry_links el USING (entry_id)
       LEFT JOIN entry_media em USING (entry_id)
@@ -95,7 +106,14 @@ export async function fetchChatEntries(threadId, userId, limit, offset) {
 
 export async function fetchEmailThreads(userId) {
   const data = await sql(`
-    SELECT thread_id, title, timestamp, author
+    SELECT
+      thread_id,
+      subject,
+      preview,
+      timestamp,
+      author_id,
+      author_first_name,
+      author_full_name
     FROM perf_email_threads_list
     WHERE identity = '${userId}'
     ORDER BY timestamp DESC
@@ -110,15 +128,18 @@ export async function fetchEmailEntries(threadId, userId) {
     SELECT
       e.entry_id,
       e.timestamp,
-      e.author,
+      ud.user_id AS author_id,
+      ud.first_name as author_first_name,
+      ud.full_name as author_full_name,
       em.subject AS email_subject,
       em.uri AS email_uri
     FROM entries e
     INNER JOIN entry_access ea USING (entry_id)
-    LEFT JOIN entry_emails em USING (entry_id)
+    INNER JOIN entry_emails em USING (entry_id)
+    INNER JOIN user_details ud ON e.author = ud.user_id
     WHERE e.thread_id = '${threadId}'
     AND ea.identity = '${userId}'
-    ORDER BY e.timestamp DESC
+    ORDER BY e.timestamp
   `);
 
   const result = toCamelCase(data);

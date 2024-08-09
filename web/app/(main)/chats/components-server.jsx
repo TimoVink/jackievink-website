@@ -49,12 +49,6 @@ const SourceIcon = ({ source }) => {
 }
 
 
-const cleanAuthor = (author) => {
-  const firstName = author.split(/[\.\-]/)[0];
-  return `${firstName[0].toUpperCase()}${firstName.substring(1)}`;
-}
-
-
 export const ThreadListEntry = ({ thread, isActive }) => (
   <Link
     key={thread.threadId}
@@ -82,8 +76,8 @@ export const ThreadListEntry = ({ thread, isActive }) => (
     </div>
     <div className="line-clamp-1 text-xs text-muted-foreground">
       {thread.content
-        ? `${cleanAuthor(thread.author)}: ${thread.content}`
-        : `${cleanAuthor(thread.author)} sent a message`}
+        ? `${thread.authorFirstName}: ${thread.content}`
+        : `${thread.authorFirstName} sent a message`}
     </div>
   </Link>
 );
@@ -256,7 +250,7 @@ export const ThreadEntryGroup = ({ entryGroup }) => (
   <div>
     {!entryGroup.userIsAuthor && (
       <div className="px-4 pt-2 pb-0.5 text-[0.67rem] tracking-wide text-muted-foreground">
-        {cleanAuthor(entryGroup.author)}
+        {entryGroup.authorFirstName}
       </div>
     )}
     <div className="space-y-1">

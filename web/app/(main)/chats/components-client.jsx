@@ -13,15 +13,19 @@ import Spinner from '@/components/ui/spinner';
 const cleanChatEntries = (userId, rawEntries) => {
   const result = []
 
-  let curAuthor = null;
+  let curAuthorId = null;
+  let curAuthorFirstName = null;
+  let curAuthorFullName = null;
   let curTimestamp = new Date(1900, 1, 1);
   let curEntries = [];
 
   const pushGroup = () => {
     if (curEntries.length) {
       result.push({
-        author: curAuthor,
-        userIsAuthor: userId === curAuthor,
+        authorId: curAuthorId,
+        authorFirstName: curAuthorFirstName,
+        authorFullName: curAuthorFullName,
+        userIsAuthor: userId === curAuthorId,
         entries: curEntries,
       });
       curEntries = [];
@@ -38,9 +42,11 @@ const cleanChatEntries = (userId, rawEntries) => {
   }
 
   for (const entry of rawEntries) {
-    if (entry.author !== curAuthor) {
+    if (entry.authorId !== curAuthorId) {
       pushGroup();
-      curAuthor = entry.author;
+      curAuthorId = entry.authorId;
+      curAuthorFirstName = entry.authorFirstName;
+      curAuthorFullName = entry.authorFullName;
     }
 
     if (subMinutes(entry.timestamp, 15) > curTimestamp) {

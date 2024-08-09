@@ -23,17 +23,11 @@ export const Loading = () => (
   </div>
 );
 
-export const Card = ({ className, children }) => (
-  <div className={cn("rounded-2xl bg-white shadow-md", className)}>
+export const Card = ({ id, className, children }) => (
+  <div id={id} className={cn("rounded-2xl bg-white shadow-md", className)}>
     {children}
   </div>
 );
-
-
-const cleanAuthor = (author) => {
-  const firstName = author.split(/[\.\-]/)[0];
-  return `${firstName[0].toUpperCase()}${firstName.substring(1)}`;
-}
 
 
 export const ThreadEntryScrollContainer = ({ children }) => (
@@ -62,7 +56,7 @@ export const ThreadListEntry = ({ thread, isActive }) => (
     <div className="flex items-center space-x-1">
       <div className="flex flex-1 justify-between items-baseline space-x-1">
         <div className="line-clamp-1 font-semibold">
-          {thread.title}
+          {thread.subject}
         </div>
         <div className="flex-none text-xs text-muted-foreground">
           <time dateTime={thread.timestamp} title={format(thread.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}>
@@ -72,9 +66,9 @@ export const ThreadListEntry = ({ thread, isActive }) => (
       </div>
     </div>
     <div className="line-clamp-1 text-xs text-muted-foreground">
-      {thread.content
-        ? `${cleanAuthor(thread.author)}: ${thread.content}`
-        : `${cleanAuthor(thread.author)} sent a message`}
+      {thread.preview
+        ? `${thread.authorFirstName}: ${thread.preview}`
+        : `${thread.authorFirstName} sent an email`}
     </div>
   </Link>
 );

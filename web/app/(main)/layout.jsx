@@ -11,7 +11,7 @@ import { auth, signOut } from '@/auth';
 const links = {
   '/chats': 'Chats',
   '/emails': 'Emails',
-  '/media': 'Media',
+  '/media': 'Photos',
 };
 
 

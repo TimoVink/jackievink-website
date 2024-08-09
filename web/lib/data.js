@@ -149,22 +149,28 @@ export async function fetchEmailEntries(threadId, userId) {
 
 export async function fetchMediaItems(userId) {
   const data = await sql(`
-    SELECT
-      e.entry_id,
-      e.timestamp,
-      e.author,
-      em.type AS media_type,
-      em.name AS media_name,
-      em.uri AS media_uri,
-      em.aspect_width AS media_aspect_width,
-      em.aspect_height AS media_aspect_height,
-      em.placeholder AS media_placeholder
-    FROM entries e
-    INNER JOIN entry_access ea USING (entry_id)
-    INNER JOIN entry_media em USING (entry_id)
-    WHERE ea.identity = '${userId}'
-    AND author IN ('${userId}', 'jackie.vink')
-    ORDER BY e.timestamp DESC
+    SELECT *
+    FROM (
+      SELECT DISTINCT ON (media_uri) *
+      FROM (
+        SELECT
+          e.timestamp,
+          e.author,
+          em.type AS media_type,
+          em.name AS media_name,
+          em.uri AS media_uri,
+          em.aspect_width AS media_aspect_width,
+          em.aspect_height AS media_aspect_height,
+          em.placeholder AS media_placeholder
+        FROM entries e
+        INNER JOIN entry_access ea USING (entry_id)
+        INNER JOIN entry_media em USING (entry_id)
+        WHERE ea.identity = '${userId}'
+        AND author IN ('${userId}', 'jackie.vink')
+        ORDER BY e.timestamp
+      ) x2
+    ) x1
+    ORDER BY timestamp DESC
     LIMIT 256
   `);
 

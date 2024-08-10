@@ -159,7 +159,7 @@ resource "aws_s3_bucket_policy" "this" {
 }
 
 resource "aws_cloudfront_cache_policy" "this" {
-  name        = "jackievink-website"
+  name = "jackievink-website"
 
   min_ttl     = 31536000
   default_ttl = 31536000

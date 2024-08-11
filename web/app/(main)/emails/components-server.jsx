@@ -59,7 +59,11 @@ export const ThreadListEntry = ({ thread, isActive }) => (
           {thread.subject}
         </div>
         <div className="flex-none text-xs text-muted-foreground">
-          <time dateTime={thread.timestamp} title={format(thread.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}>
+          <time
+            dateTime={thread.timestamp}
+            title={format(thread.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
+            suppressHydrationWarning={true}
+          >
             {formatDistanceToNow(thread.timestamp, { addSuffix: true })}
           </time>
         </div>

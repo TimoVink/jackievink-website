@@ -24,7 +24,11 @@ export const ThreadEntry = ({ entry }) => {
               {entry.authorFullName}
             </div>
             <div className="flex-none text-xs text-muted-foreground">
-              <time dateTime={entry.timestamp} title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}>
+              <time
+                dateTime={entry.timestamp}
+                title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
+                suppressHydrationWarning={true}
+              >
                 {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
               </time>
             </div>

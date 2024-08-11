@@ -1,4 +1,4 @@
-import { MediaPage } from './components-server';
+import { MediaPage } from './components-client';
 
 
 const Page = () => (

@@ -147,7 +147,7 @@ export async function fetchEmailEntries(threadId, userId) {
 }
 
 
-export async function fetchMediaItems(userId) {
+export async function fetchMediaItems(userId, limit, offset) {
   const data = await sql(`
     SELECT *
     FROM (
@@ -171,7 +171,7 @@ export async function fetchMediaItems(userId) {
       ) x2
     ) x1
     ORDER BY timestamp DESC
-    LIMIT 256
+    LIMIT ${limit || 128} OFFSET ${offset || 0}
   `);
 
   const result = toCamelCase(data);

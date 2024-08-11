@@ -73,8 +73,8 @@ export const ThreadEntriesFetch = ({ userId, threadId }) => {
   const [entries, setEntries] = useState([]);
   const [hasMore, setHasMore] = useState(true);
 
-  const INITIAL_LIMIT = 64;
-  const SUBSEQ_LIMIT = 16;
+  const INITIAL_LIMIT = 128;
+  const SUBSEQ_LIMIT = 64;
 
   useEffect(() => {
     makeApiCall(`api/chat/entries?threadId=${threadId}&limit=${INITIAL_LIMIT}&offset=${entries.length}`)
@@ -114,7 +114,7 @@ export const ThreadEntriesFetch = ({ userId, threadId }) => {
           inverse
           hasMore={hasMore}
           loader={entries.length && (<div className="h-16 flex flex-col justify-center items-center"><Spinner /></div>)}
-          scrollThreshold="2000px"
+          scrollThreshold="4000px"
           scrollableTarget="entries-infinite-scroll"
         >
           <div className="space-y-1">

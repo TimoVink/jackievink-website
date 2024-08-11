@@ -196,7 +196,7 @@ resource "aws_cloudfront_distribution" "this" {
     viewer_protocol_policy = "redirect-to-https"
 
     # CORS-With-Preflight
-    response_headers_policy_id = "67f7725c-6f97-4210-82d7-5512b31e9d03"
+    response_headers_policy_id = "5cc3b908-e619-4b99-88e5-2cf7f45965bd"
     cache_policy_id            = aws_cloudfront_cache_policy.this.id
   }
 

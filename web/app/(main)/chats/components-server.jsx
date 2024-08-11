@@ -223,6 +223,7 @@ const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWi
           height={Math.floor(mediaAspectHeight * 400)}
           placeholder='blur'
           blurDataURL={mediaPlaceholder}
+          alt="An image sent in the chat"
         />
       ) : (
         <Image
@@ -230,6 +231,7 @@ const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWi
           src={`https://static.jackievink.com/${mediaUri}`}
           placeholder='blur'
           blurDataURL={mediaPlaceholder}
+          alt="An image sent in the chat"
           fill
         />
       )

@@ -64,6 +64,7 @@ export const MediaPage = () => {
                 src={`https://static.jackievink.com/${m.mediaUri}`}
                 placeholder='blur'
                 blurDataURL={m.mediaPlaceholder}
+                alt="A photo sent to or from Jackie"
                 fill
               />
             </div>

@@ -105,7 +105,7 @@ const Layout = ({ children }) => (
     <main className="flex-1 overflow-y-auto">
       {children}
     </main>
-    <div className="h-[20vh] absolute top-0 left-0 right-0 bg-primary -z-10" />
+    <div className="h-[20vh] absolute top-0 left-0 right-0 bg-primary -z-10 brightness-[0.85]" />
   </div>
 );
 

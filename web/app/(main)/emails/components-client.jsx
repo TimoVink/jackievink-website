@@ -13,7 +13,7 @@ import './email.css';
 
 export const ThreadEntry = ({ entry }) => {
   const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
-  const { html, text, from } = extract(data);
+  const { html, text, from, attachments } = extract(data);
 
   return (
     <Card id={`entry-${entry.entryId}`}>
@@ -38,6 +38,11 @@ export const ThreadEntry = ({ entry }) => {
       <div className="p-4 email">
         <Letter html={html} text={text} />
       </div>
+      {!!attachments?.length && <div className="p-4 border-t space-y-2">
+        {attachments.map(a => (
+          <div key={a.contentId}>📎 {a.filename}</div>
+        ))}
+      </div>}
     </Card>
   );
 };

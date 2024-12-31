@@ -48,7 +48,7 @@ export const ThreadEntriesFetch = ({ threadId }) => {
 
   return (
     <ThreadEntryScrollContainer>
-      {data.map(e => (
+      {data && data.map(e => (
         <ThreadEntry key={e.entryId} entry={e} />
       ))}
     </ThreadEntryScrollContainer>

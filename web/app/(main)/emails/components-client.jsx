@@ -92,7 +92,7 @@ export const ThreadEntry = ({ entry }) => {
       </div>
       {!!attachments?.length && <div className="p-4 border-t space-y-2">
         {attachments.map(a => (
-          <div key={a.contentId}>📎 {a.filename}</div>
+          <div key={a.contentId}>📎 {a.filename || 'Attachment'}</div>
         ))}
       </div>}
     </Card>

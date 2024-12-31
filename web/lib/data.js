@@ -125,7 +125,7 @@ export async function fetchEmailThreads(userId) {
 
 export async function fetchEmailEntries(threadId, userId) {
   const data = await sql(`
-    SELECT
+    SELECT DISTINCT
       e.entry_id,
       e.timestamp,
       ud.user_id AS author_id,
@@ -136,7 +136,7 @@ export async function fetchEmailEntries(threadId, userId) {
     FROM entries e
     INNER JOIN entry_access ea USING (entry_id)
     INNER JOIN entry_emails em USING (entry_id)
-    INNER JOIN user_details ud ON e.author = ud.user_id
+    LEFT JOIN user_details ud ON e.author = ud.user_id
     WHERE e.thread_id = '${threadId}'
     AND ea.identity = '${userId}'
     ORDER BY e.timestamp

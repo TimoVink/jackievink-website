@@ -13,7 +13,7 @@ import './email.css';
 
 export const ThreadEntry = ({ entry }) => {
   const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
-  const { html, text } = extract(data);
+  const { html, text, from } = extract(data);
 
   return (
     <Card id={`entry-${entry.entryId}`}>
@@ -21,7 +21,7 @@ export const ThreadEntry = ({ entry }) => {
         <div className="flex items-center space-x-1">
           <div className="flex flex-1 justify-between items-baseline space-x-1">
             <div className="line-clamp-1 font-semibold">
-              {entry.authorFullName}
+              {entry.authorFullName || from?.name || from?.address}
             </div>
             <div className="flex-none text-xs text-muted-foreground">
               <time

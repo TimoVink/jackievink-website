@@ -1,6 +1,5 @@
 import { Inter as FontSans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cn } from '@/lib/utils';
 
 import ReactQueryProvider from '@/components/providers';
@@ -32,7 +31,6 @@ const RootLayout = ({ children }) => (
         </ReactQueryProvider>
       </div>
       <Analytics />
-      <SpeedInsights />
     </body>
   </html>
 );

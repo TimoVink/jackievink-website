@@ -124,7 +124,8 @@ export async function fetchEmailThreads(userId) {
 
 
 export async function fetchEmailEntries(threadId, userId) {
-  const data = await sql(`
+  // First grab the entries
+  const emailData = await sql(`
     SELECT DISTINCT
       e.entry_id,
       e.timestamp,
@@ -141,8 +142,31 @@ export async function fetchEmailEntries(threadId, userId) {
     AND ea.identity = '${userId}'
     ORDER BY e.timestamp
   `);
+  const result = toCamelCase(emailData);
 
-  const result = toCamelCase(data);
+  // Then augment with the attachments
+  const mediaData = await sql(`
+    SELECT
+      e.entry_id,
+      em.name,
+      em.uri
+    FROM entries e
+    INNER JOIN entry_access ea USING (entry_id)
+    INNER JOIN entry_media em USING (entry_id)
+    WHERE e.thread_id = '${threadId}'
+    AND ea.identity = '${userId}'
+    ORDER BY em.name
+  `);
+  const mediaLookup = mediaData.reduce((acc, { entry_id, name, uri }) => {
+    acc[entry_id] = acc[entry_id] || [];
+    acc[entry_id].push({ name, uri });
+    return acc;
+  }, {});
+  for (const entry of result) {
+    entry['media'] = mediaLookup[entry.entryId] ?? [];
+  }
+  console.log(result);
+
   return result;
 }
 
@@ -154,6 +178,7 @@ export async function fetchMediaItems(userId, limit, offset) {
       SELECT DISTINCT ON (media_uri) *
       FROM (
         SELECT
+          e.entry_id,
           e.timestamp,
           e.author,
           em.type AS media_type,

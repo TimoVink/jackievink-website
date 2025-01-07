@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
@@ -11,6 +12,23 @@ import { useApiCall, useTextApiCall } from '@/lib/api';
 import ClientOnly from '@/components/clientonly';
 
 import './email.css';
+
+
+const handleDownload = async (uri, name) => {
+  // Download as blob
+  const response = await fetch(uri, { method: 'GET' });
+  const blob = await response.blob();
+
+  // Create and click a link element
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+
+  // Clean up
+  document.body.removeChild(link);
+};
 
 
 function isEmptyOrBrOnly(element) {
@@ -43,7 +61,7 @@ function isEmptyOrBrOnly(element) {
 
 export const ThreadEntry = ({ entry }) => {
   const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
-  const { html, text, from, attachments } = extract(data);
+  const { html, text, from } = extract(data);
 
   const emailRef = useRef(null);
 
@@ -91,9 +109,11 @@ export const ThreadEntry = ({ entry }) => {
       <div className="p-4 email" ref={emailRef}>
         <Letter html={html} text={text} />
       </div>
-      {!!attachments?.length && <div className="p-4 border-t space-y-2">
-        {attachments.map(a => (
-          <div key={a.contentId}>📎 {a.filename || 'Attachment'}</div>
+      {!!entry.media?.length && <div className="p-4 border-t space-y-2">
+        {entry.media.map(a => (
+          <div key={a.uri}>
+            📎 <button onClick={() => handleDownload(a.uri, a.name)}>{a.name}</button>
+          </div>
         ))}
       </div>}
     </Card>

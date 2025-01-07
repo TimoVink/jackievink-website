@@ -61,6 +61,8 @@ const cleanChatEntries = (userId, rawEntries) => {
       curEntries.push(pick(entry, [...commonProps, 'linkText', 'linkUri']))
     } else if (entry.type === 'im-media-visual' && entry.mediaType === 'photo') {
       curEntries.push(pick(entry, [...commonProps, 'mediaType', 'mediaName', 'mediaUri', 'mediaAspectWidth', 'mediaAspectHeight', 'mediaPlaceholder']))
+    } else if (entry.type === 'im-call') {
+      curEntries.push(pick(entry, [...commonProps, 'missed', 'duration']))
     }
   }
   pushGroup();

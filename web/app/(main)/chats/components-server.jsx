@@ -208,7 +208,7 @@ const ThreadLinkEntry = ({ entryId, userIsAuthor, linkText, linkUri }) => (
 
 const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWidth, mediaAspectHeight, mediaPlaceholder }) => (
   <div
-    id={`entry-${entryId}`}
+    id={`entry-${entryId}}`}
     className={cn(
       'w-full flex',
       userIsAuthor ? 'justify-end' : 'justify-start'
@@ -239,6 +239,16 @@ const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWi
   </div>
 )
 
+const ThreadCallEntry = ({ entryId, missed, duration }) => (
+  <div id={`entry-${entryId}`} className="w-full flex justify-center tracking-wide text-muted-foreground text-xs py-1">
+    {missed
+      ? <span>Missed call</span>
+      : !!duration
+        ? <span>Video call for {duration} seconds</span>
+        : <span>Video call ended</span>}
+  </div>
+);
+
 const ThreadEntry = ({ entry }) => {
   if (entry.type === 'im-text') {
     return <ThreadTextEntry {...entry} />
@@ -246,10 +256,17 @@ const ThreadEntry = ({ entry }) => {
     return <ThreadLinkEntry {...entry} />
   } else if (entry.type === 'im-media-visual') {
     return <ThreadVisualMediaEntry {...entry} />
+  } else if (entry.type === 'im-call') {
+    return <ThreadCallEntry {...entry} />
   }
 
   return <div />;
 }
+
+const getKey = (entry) =>
+  entry.type === 'im-media-visual'
+    ? `entry-${entry.entryId}-${entry.mediaUri}`
+    : `entry-${entry.entryId}`;
 
 
 export const ThreadEntryGroup = ({ entryGroup }) => (
@@ -261,7 +278,7 @@ export const ThreadEntryGroup = ({ entryGroup }) => (
     )}
     <div className="space-y-1">
       {entryGroup.entries.map(e => (
-        <ThreadEntry key={e.entryId} entry={({ ...e, userIsAuthor: entryGroup.userIsAuthor })} />
+        <ThreadEntry key={getKey(e)} entry={({ ...e, userIsAuthor: entryGroup.userIsAuthor })} />
       ))}
     </div>
   </div>

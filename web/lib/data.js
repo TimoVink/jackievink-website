@@ -165,7 +165,6 @@ export async function fetchEmailEntries(threadId, userId) {
   for (const entry of result) {
     entry['media'] = mediaLookup[entry.entryId] ?? [];
   }
-  console.log(result);
 
   return result;
 }

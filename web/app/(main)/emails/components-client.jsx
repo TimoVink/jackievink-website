@@ -1,11 +1,13 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
 import { format, formatDistanceToNow } from 'date-fns';
+import { useReactToPrint } from 'react-to-print';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPrint } from '@fortawesome/free-solid-svg-icons';
 
 import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
 import { useApiCall, useTextApiCall } from '@/lib/api';
@@ -92,7 +94,7 @@ export const ThreadEntry = ({ entry }) => {
   }, [emailRef.current]);
 
   return (
-    <Card id={`entry-${entry.entryId}`}>
+    <Card id={`entry-${entry.entryId}`} className="break-inside-avoid">
       <div className="p-4 border-b">
         <div className="flex items-center space-x-1">
           <div className="flex flex-1 justify-between items-baseline space-x-1">
@@ -127,17 +129,26 @@ export const ThreadEntry = ({ entry }) => {
 
 
 export const ThreadEntriesFetch = ({ threadId }) => {
+  const printRef = useRef(null);
+  const triggerPrint = useReactToPrint({ contentRef: printRef });
   const { data } = useApiCall(`api/email/entries?threadId=${threadId}`)
 
   return (
-    <ThreadEntryScrollContainer>
-      {data && data.length && <>
-        <div className="text-xl px-4 pt-2">{data[data.length -1].emailSubject}</div>
-        {data.map(e => (
-          <ThreadEntry key={e.entryId} entry={e} />
-        ))}
-      </>}
-    </ThreadEntryScrollContainer>
+    <div ref={printRef} className="h-full">
+      <ThreadEntryScrollContainer>
+        {data && data.length && <>
+          <div className="text-xl px-4 pt-2 flex justify-between">
+            <div>{data[data.length -1].emailSubject}</div>
+            <button className="print:hidden text-muted-foreground" onClick={triggerPrint}>
+              <FontAwesomeIcon icon={faPrint} />
+            </button>
+          </div>
+          {data.map(e => (
+            <ThreadEntry key={e.entryId} entry={e} />
+          ))}
+        </>}
+      </ThreadEntryScrollContainer>
+    </div>
   )
 }
 

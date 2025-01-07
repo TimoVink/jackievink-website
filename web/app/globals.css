@@ -68,3 +68,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print{
+    @page {
+        margin: 2cm;
+    }
+}

@@ -14,9 +14,14 @@ import ClientOnly from '@/components/clientonly';
 import './email.css';
 
 
-const handleDownload = async (uri, name) => {
+const handleDownload = async (path, name) => {
   // Download as blob
-  const response = await fetch(uri, { method: 'GET' });
+  const url = `https://static.jackievink.com/${path}`;
+  const response = await fetch(url, { method: 'GET' });
+  if (!response.ok) {
+    console.error('Failed to download file');
+    return;
+  }
   const blob = await response.blob();
 
   // Create and click a link element

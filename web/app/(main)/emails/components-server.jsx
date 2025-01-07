@@ -157,14 +157,11 @@ export const ThreadEntriesSkeleton = () => (
 );
 
 
-export const ThreadEntriesSuspenseContainer = async ({ threadId }) => {
-  const session = await auth();
-  return (
-    <Suspense key={threadId} fallback={<ThreadEntriesSkeleton />}>
-      <ThreadEntries userId={session.user.id} />
-    </Suspense>
-  );
-}
+export const ThreadEntriesSuspenseContainer = ({ threadId }) => (
+  <Suspense key={threadId} fallback={<ThreadEntriesSkeleton />}>
+    <ThreadEntries />
+  </Suspense>
+);
 
 
 export const Layout = ({ listComponent, detailComponent }) => (

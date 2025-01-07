@@ -8,6 +8,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 
 import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
 import { useApiCall, useTextApiCall } from '@/lib/api';
+import ClientOnly from '@/components/clientonly';
 
 import './email.css';
 
@@ -117,7 +118,7 @@ export const ThreadEntries = () => {
   const searchParams = useSearchParams();
   const threadId = searchParams.get('id');
   const result = threadId
-    ? <ThreadEntriesFetch threadId={threadId} />
+    ? <ClientOnly><ThreadEntriesFetch threadId={threadId} /></ClientOnly>
     : <ThreadEntriesSkeleton />;
 
   return result;

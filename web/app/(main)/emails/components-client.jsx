@@ -131,9 +131,12 @@ export const ThreadEntriesFetch = ({ threadId }) => {
 
   return (
     <ThreadEntryScrollContainer>
-      {data && data.map(e => (
-        <ThreadEntry key={e.entryId} entry={e} />
-      ))}
+      {data && data.length && <>
+        <div className="text-xl px-4 pt-2">{data[data.length -1].emailSubject}</div>
+        {data.map(e => (
+          <ThreadEntry key={e.entryId} entry={e} />
+        ))}
+      </>}
     </ThreadEntryScrollContainer>
   )
 }

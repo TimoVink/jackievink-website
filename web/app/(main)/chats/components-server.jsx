@@ -187,11 +187,13 @@ const ThreadBubble = ({ entryId, userIsAuthor, outline, children }) => (
   </div>
 );
 
+
 const ThreadTextEntry = ({ entryId, userIsAuthor, content }) => (
   <ThreadBubble entryId={entryId} userIsAuthor={userIsAuthor}>
     <Markdown>{emojify(content)}</Markdown>
   </ThreadBubble>
 );
+
 
 const ThreadLinkEntry = ({ entryId, userIsAuthor, linkText, linkUri }) => (
   <ThreadBubble entryId={entryId} userIsAuthor={userIsAuthor} outline>
@@ -205,6 +207,7 @@ const ThreadLinkEntry = ({ entryId, userIsAuthor, linkText, linkUri }) => (
     </a>
   </ThreadBubble>
 );
+
 
 const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWidth, mediaAspectHeight, mediaPlaceholder }) => (
   <div
@@ -237,7 +240,8 @@ const ThreadVisualMediaEntry = ({ entryId, userIsAuthor, mediaUri, mediaAspectWi
       )
     }
   </div>
-)
+);
+
 
 const ThreadCallEntry = ({ entryId, missed, duration }) => (
   <div id={`entry-${entryId}`} className="w-full flex justify-center tracking-wide text-muted-foreground text-xs py-1">
@@ -248,6 +252,7 @@ const ThreadCallEntry = ({ entryId, missed, duration }) => (
         : <span>Video call ended</span>}
   </div>
 );
+
 
 const ThreadEntry = ({ entry }) => {
   if (entry.type === 'im-text') {
@@ -262,6 +267,7 @@ const ThreadEntry = ({ entry }) => {
 
   return <div />;
 }
+
 
 const getKey = (entry) =>
   entry.type === 'im-media-visual'

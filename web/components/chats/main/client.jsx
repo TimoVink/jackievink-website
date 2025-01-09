@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { subMinutes } from 'date-fns';
 
-import { ScrollContainer, ThreadEntryGroup, ThreadEntriesSkeleton } from './components-server';
+import { useEffect, useState } from 'react';
+
+import { subMinutes } from 'date-fns';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 import { makeApiCall } from '@/lib/api';
-import Spinner from '@/components/ui/spinner';
+import { Spinner } from '@/components/ui/spinner';
+import { ScrollContainer } from '../shared/server';
+import { ThreadEntriesSkeleton, ThreadEntryGroup } from './server';
 
 
 const cleanChatEntries = (userId, rawEntries) => {
@@ -128,16 +130,4 @@ export const ThreadEntriesFetch = ({ userId, threadId }) => {
       </div>
     </ScrollContainer>
   )
-}
-
-
-export const ThreadEntries = ({ userId }) => {
-  const searchParams = useSearchParams();
-  const threadId = searchParams.get('id');
-
-  const result = threadId
-    ? <ThreadEntriesFetch userId={userId} threadId={threadId} />
-    : <ThreadEntriesSkeleton />;
-
-  return result;
 }

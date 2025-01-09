@@ -1,16 +1,9 @@
-import { Layout, ThreadEntriesSuspenseContainer, ThreadListSuspenseContainer } from './components-server';
+import { Layout } from '@/components/chats/layout';
 
 
-const Page = async props => {
+const Page = async (props) => {
   const searchParams = await props.searchParams;
-
-  return (
-    <Layout
-      threadId={searchParams.id}
-      listComponent={<ThreadListSuspenseContainer threadId={searchParams.id} />}
-      detailComponent={<ThreadEntriesSuspenseContainer threadId={searchParams.id} />}
-    />
-  );
+  return <Layout threadId={searchParams.id} />
 };
 
 

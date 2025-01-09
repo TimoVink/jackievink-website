@@ -1,12 +1,7 @@
-import { Layout, ThreadEntriesSkeleton, ThreadListSkeleton } from "./components-server";
+import { Layout } from "@/components/chats/layout";
 
 
-const Loading = () => (
-  <Layout
-    listComponent={<ThreadListSkeleton />}
-    detailComponent={<ThreadEntriesSkeleton />}
-  />
-);
+const Loading = () => <Layout skeleton />;
 
 
 export default Loading;

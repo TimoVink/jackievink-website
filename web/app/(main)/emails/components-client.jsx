@@ -6,8 +6,7 @@ import { Letter } from 'react-letter';
 import { extract } from 'letterparser';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useReactToPrint } from 'react-to-print';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { Printer } from 'lucide-react';
 
 import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
 import { useApiCall, useTextApiCall } from '@/lib/api';
@@ -140,7 +139,7 @@ export const ThreadEntriesFetch = ({ threadId }) => {
           <div className="text-xl px-4 pt-2 flex justify-between">
             <div>{data[data.length -1].emailSubject}</div>
             <button className="print:hidden text-muted-foreground" onClick={triggerPrint}>
-              <FontAwesomeIcon icon={faPrint} />
+              <Printer />
             </button>
           </div>
           {data.map(e => (

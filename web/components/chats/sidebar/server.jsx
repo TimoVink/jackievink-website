@@ -12,7 +12,6 @@ import { ScrollContainer } from '../shared/server';
 import { ThreadListEntryLink, ThreadListFilters } from './client';
 
 
-
 const SourceIcon = ({ source }) => {
   const className = 'w-[1em] inline';
   if (source === 'facebook') {
@@ -119,7 +118,7 @@ export const ThreadListSkeleton = () => (
 
 
 export const Sidebar = ({ threadId, skeleton }) => (
-  <div className="h-full w-full flex flex-col p-4 pr-2 space-y-2">
+  <div className="h-full w-full flex flex-col space-y-2">
     {/* <div className="flex-none">
       <ThreadListFilters />
     </div> */}

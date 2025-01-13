@@ -74,3 +74,17 @@
         margin: 2cm;
     }
 }
+
+.email {
+    br:has(+ *[class$="_gmail_quote"]) {
+        display: none;
+    }
+
+    *[class$="_gmail_quote"] {
+        display: none;
+    }
+
+    *:has(> p) > *:not(:first-child) {
+        padding-top: 0.5em;
+    }
+}

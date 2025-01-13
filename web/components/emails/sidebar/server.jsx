@@ -1,57 +1,23 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
+
 import { format, formatDistanceToNow } from 'date-fns';
 
-import { Spinner } from '@/components/ui/spinner';
+import { auth } from '@/auth';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-
-import { auth } from '@/auth';
-
 import { fetchEmailThreads } from '@/lib/data';
 import { cn } from '@/lib/utils';
-
-import { ThreadEntries } from './components-client';
-
-
-export const Loading = () => (
-  <div className="h-full w-full flex flex-col justify-center">
-    <div className="w-full flex justify-center">
-      <Spinner />
-    </div>
-  </div>
-);
-
-export const Card = ({ id, className, children }) => (
-  <div id={id} className={cn("rounded-2xl bg-white shadow-md", className)}>
-    {children}
-  </div>
-);
-
-
-export const ThreadEntryScrollContainer = ({ children }) => (
-  <div className="h-full p-1">
-    <ScrollArea>
-      <div className={cn(
-        "space-y-4 pl-1 py-3 pr-4",
-      )}>
-        {children}
-      </div>
-    </ScrollArea>
-  </div>
-);
+import { MyCard } from '../shared/server';
+import { ThreadListEntryLink } from './client';
 
 
 export const ThreadListEntry = ({ thread, isActive }) => (
-  <Link
-    key={thread.threadId}
-    id={`thread-${thread.threadId}`}
-    className={cn(
-      "block rounded-lg py-2 px-3 text-sm space-y-1",
+  <div className={
+    cn(
+      "rounded-lg py-2 px-3 text-sm space-y-1",
       isActive && "bg-muted",
     )}
-    href={`/emails?id=${thread.threadId}`}
   >
     <div className="flex items-center space-x-1">
       <div className="flex flex-1 justify-between items-baseline space-x-1">
@@ -74,24 +40,11 @@ export const ThreadListEntry = ({ thread, isActive }) => (
         ? `${thread.authorFirstName}: ${thread.preview}`
         : `${thread.authorFirstName} sent an email`}
     </div>
-  </Link>
-);
-
-
-const ThreadListEntrySkeleton = () => (
-  <div className="block rounded-lg py-2 px-3 space-y-1">
-    <div className="flex items-center space-x-1">
-      <Skeleton className="h-[1lh] w-[1lh] rounded-full" />
-      <Skeleton className="h-[1lh] w-full" />
-    </div>
-    <div className="line-clamp-1 text-xs text-muted-foreground">
-      <Skeleton className="h-[1lh] w-full" />
-    </div>
   </div>
 );
 
 
-export const ThreadListScrollContainer = ({ children, holdPadding }) => (
+const ThreadListScrollContainer = ({ children, holdPadding }) => (
   <div className="py-4 px-1 h-full">
     <ScrollArea>
       <div className={cn(
@@ -119,58 +72,56 @@ const ThreadList = async ({ threadId }) => {
   }
 
   return (
-    <Card className="h-full">
+    <MyCard className="h-full">
       <ThreadListScrollContainer>
         {data.map(t => (
-          <ThreadListEntry
+          <ThreadListEntryLink
             key={t.threadId}
             thread={t}
             isActive={threadId === t.threadId}
           />
         ))}
       </ThreadListScrollContainer>
-    </Card>
+    </MyCard>
   )
 };
 
 
-export const ThreadListSkeleton = () => (
-  <Card className="h-full">
+const ThreadListEntrySkeleton = () => (
+  <div className="block rounded-lg py-2 px-3 space-y-1">
+    <div className="flex items-center space-x-1">
+      <Skeleton className="h-[1lh] w-[1lh] rounded-full" />
+      <Skeleton className="h-[1lh] w-full" />
+    </div>
+    <div className="line-clamp-1 text-xs text-muted-foreground">
+      <Skeleton className="h-[1lh] w-full" />
+    </div>
+  </div>
+);
+
+
+const ThreadListSkeleton = () => (
+  <MyCard className="h-full">
     <ThreadListScrollContainer>
       {Array(32).fill().map((_, i) => (
         <ThreadListEntrySkeleton key={i} />
       ))}
     </ThreadListScrollContainer>
-  </Card>
+  </MyCard>
 );
 
 
-export const ThreadListSuspenseContainer = ({ threadId }) => (
+const ThreadListSuspenseContainer = ({ threadId }) => (
   <Suspense fallback={<ThreadListSkeleton />}>
     <ThreadList threadId={threadId} />
   </Suspense>
 );
 
 
-export const ThreadEntriesSkeleton = () => (
-  <Loading />
-);
-
-
-export const ThreadEntriesSuspenseContainer = ({ threadId }) => (
-  <Suspense key={threadId} fallback={<ThreadEntriesSkeleton />}>
-    <ThreadEntries />
-  </Suspense>
-);
-
-
-export const Layout = ({ listComponent, detailComponent }) => (
-  <div className="h-full flex bg-muted">
-    <div className="flex-none w-[28rem] p-4 pr-2">
-      {listComponent}
-    </div>
-    <div className="flex-1">
-      {detailComponent}
-    </div>
+export const Sidebar = ({ threadId, skeleton }) => (
+  <div className="h-full w-full">
+    {skeleton
+      ? <ThreadListSkeleton />
+      : <ThreadListSuspenseContainer threadId={threadId} />}
   </div>
 );

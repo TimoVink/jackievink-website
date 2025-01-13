@@ -1,18 +1,18 @@
 'use client';
 
+
 import { useRef, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Letter } from 'react-letter';
-import { extract } from 'letterparser';
+
 import { format, formatDistanceToNow } from 'date-fns';
-import { useReactToPrint } from 'react-to-print';
+import { extract } from 'letterparser';
 import { Printer } from 'lucide-react';
+import { Letter } from 'react-letter';
+import { useReactToPrint } from 'react-to-print';
 
-import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
+import { ClientOnly } from '@/components/clientonly';
 import { useApiCall, useTextApiCall } from '@/lib/api';
-import ClientOnly from '@/components/clientonly';
-
-import './email.css';
+import { MyCard } from '../shared/server';
+import { ThreadEntryScrollContainer, ThreadEntriesSkeleton } from './server';
 
 
 const handleDownload = async (path, name) => {
@@ -93,7 +93,7 @@ export const ThreadEntry = ({ entry }) => {
   }, [emailRef.current]);
 
   return (
-    <Card id={`entry-${entry.entryId}`} className="break-inside-avoid">
+    <MyCard id={`entry-${entry.entryId}`} className="break-inside-avoid">
       <div className="p-4 border-b">
         <div className="flex items-center space-x-1">
           <div className="flex flex-1 justify-between items-baseline space-x-1">
@@ -122,12 +122,12 @@ export const ThreadEntry = ({ entry }) => {
           </div>
         ))}
       </div>}
-    </Card>
+    </MyCard>
   );
 };
 
 
-export const ThreadEntriesFetch = ({ threadId }) => {
+const ThreadEntriesFetch = ({ threadId }) => {
   const printRef = useRef(null);
   const triggerPrint = useReactToPrint({ contentRef: printRef });
   const { data } = useApiCall(`api/email/entries?threadId=${threadId}`)
@@ -152,12 +152,8 @@ export const ThreadEntriesFetch = ({ threadId }) => {
 }
 
 
-export const ThreadEntries = () => {
-  const searchParams = useSearchParams();
-  const threadId = searchParams.get('id');
-  const result = threadId
+export const ThreadEntries = ({ threadId }) => (
+  threadId
     ? <ClientOnly><ThreadEntriesFetch threadId={threadId} /></ClientOnly>
-    : <ThreadEntriesSkeleton />;
-
-  return result;
-}
+    : <ThreadEntriesSkeleton />
+);

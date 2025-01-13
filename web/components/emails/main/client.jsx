@@ -1,7 +1,7 @@
 'use client';
 
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, Suspense } from 'react';
 
 import { format, formatDistanceToNow } from 'date-fns';
 import { extract } from 'letterparser';
@@ -9,8 +9,10 @@ import { Printer } from 'lucide-react';
 import { Letter } from 'react-letter';
 import { useReactToPrint } from 'react-to-print';
 
-import { ClientOnly } from '@/components/clientonly';
 import { useApiCall, useTextApiCall } from '@/lib/api';
+import { ClientOnly } from '@/components/clientonly';
+import { Loading } from '@/components/loading';
+import { Skeleton } from '@/components/ui/skeleton';
 import { MyCard } from '../shared/server';
 import { ThreadEntryScrollContainer, ThreadEntriesSkeleton } from './server';
 
@@ -65,6 +67,51 @@ function isEmptyOrBrOnly(element) {
   return true;
 }
 
+
+const ThreadEntryCard = ({ entry, author, children }) => (
+  <MyCard id={`entry-${entry.entryId}`} className="break-inside-avoid">
+    <div className="p-4 border-b">
+      <div className="flex items-center space-x-1">
+        <div className="flex flex-1 justify-between items-baseline space-x-1">
+          <div className="line-clamp-1 font-semibold w-full max-w-48">
+            {author}
+          </div>
+          <div className="flex-none text-xs text-muted-foreground">
+            <time
+              dateTime={entry.timestamp}
+              title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
+              suppressHydrationWarning={true}
+            >
+              {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
+            </time>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="p-4">
+      {children}
+    </div>
+    {!!entry.media?.length && <div className="p-4 border-t space-y-2">
+      {entry.media.map(a => (
+        <div key={a.uri}>
+          📎 <button onClick={() => handleDownload(a.uri, a.name)}>{a.name}</button>
+        </div>
+      ))}
+    </div>}
+  </MyCard>
+);
+
+
+const ThreadEntrySkeleton  = ({ entry }) => (
+  <ThreadEntryCard
+    entry={entry}
+    author={entry.authorFullName || <Skeleton className="h-[1lh] w-full" />}
+  >
+    <Loading />
+  </ThreadEntryCard>
+);
+
+
 export const ThreadEntry = ({ entry }) => {
   const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
   const { html, text, from } = extract(data);
@@ -93,36 +140,14 @@ export const ThreadEntry = ({ entry }) => {
   }, [emailRef.current]);
 
   return (
-    <MyCard id={`entry-${entry.entryId}`} className="break-inside-avoid">
-      <div className="p-4 border-b">
-        <div className="flex items-center space-x-1">
-          <div className="flex flex-1 justify-between items-baseline space-x-1">
-            <div className="line-clamp-1 font-semibold">
-              {entry.authorFullName || from?.name || from?.address}
-            </div>
-            <div className="flex-none text-xs text-muted-foreground">
-              <time
-                dateTime={entry.timestamp}
-                title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
-                suppressHydrationWarning={true}
-              >
-                {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
-              </time>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 email" ref={emailRef}>
+    <ThreadEntryCard
+      entry={entry}
+      author={entry.authorFullName || from?.name || from?.address}
+    >
+      <div className="email" ref={emailRef}>
         <Letter html={html} text={text} />
       </div>
-      {!!entry.media?.length && <div className="p-4 border-t space-y-2">
-        {entry.media.map(a => (
-          <div key={a.uri}>
-            📎 <button onClick={() => handleDownload(a.uri, a.name)}>{a.name}</button>
-          </div>
-        ))}
-      </div>}
-    </MyCard>
+    </ThreadEntryCard>
   );
 };
 
@@ -143,7 +168,9 @@ const ThreadEntriesFetch = ({ threadId }) => {
             </button>
           </div>
           {data.map(e => (
-            <ThreadEntry key={e.entryId} entry={e} />
+            <Suspense key={e.entryId} fallback={<ThreadEntrySkeleton entry={e} />}>
+              <ThreadEntry entry={e} />
+            </Suspense>
           ))}
         </>}
       </ThreadEntryScrollContainer>

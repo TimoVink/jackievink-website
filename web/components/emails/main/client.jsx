@@ -5,7 +5,7 @@ import { useRef, useEffect, Suspense } from 'react';
 
 import { format, formatDistanceToNow } from 'date-fns';
 import { extract } from 'letterparser';
-import { Printer } from 'lucide-react';
+import { Paperclip, Printer } from 'lucide-react';
 import { Letter } from 'react-letter';
 import { useReactToPrint } from 'react-to-print';
 
@@ -93,9 +93,16 @@ const ThreadEntryCard = ({ entry, author, children }) => (
     </div>
     {!!entry.media?.length && <div className="p-4 border-t space-y-2">
       {entry.media.map(a => (
-        <div key={a.uri}>
-          📎 <button onClick={() => handleDownload(a.uri, a.name)}>{a.name}</button>
-        </div>
+        <button
+          key={a.uri}
+          onClick={() => handleDownload(a.uri, a.name)}
+          className="space-x-1"
+        >
+          <span className="text-muted-foreground">
+            <Paperclip className="inline-block" size="15"/>
+          </span>
+          <span>{a.name}</span>
+        </button>
       ))}
     </div>}
   </MyCard>

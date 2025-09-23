@@ -101,8 +101,9 @@ resource "aws_db_subnet_group" "this" {
 }
 
 data "aws_rds_engine_version" "aurora_postgres15" {
-  engine             = "aurora-postgresql"
-  preferred_versions = ["15."]
+  engine  = "aurora-postgresql"
+  version = "15"
+  latest  = true
 }
 
 resource "aws_rds_cluster" "this" {

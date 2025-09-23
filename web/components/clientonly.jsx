@@ -1,10 +1,15 @@
 import dynamic from 'next/dynamic';
 
-const ClientOnly = (props) => {
+
+const ClientOnlyInner = (props) => {
   const { children } = props;
   return children;
 };
 
-export default dynamic(() => Promise.resolve(ClientOnly), {
+
+export const ClientOnly = dynamic(() => Promise.resolve(ClientOnlyInner), {
   ssr: false,
 });
+
+
+export default ClientOnly;

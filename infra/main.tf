@@ -100,12 +100,18 @@ resource "aws_db_subnet_group" "this" {
   subnet_ids = data.aws_subnets.public.ids
 }
 
+data "aws_rds_engine_version" "aurora_postgres15" {
+  engine  = "aurora-postgresql"
+  version = "15"
+  latest  = true
+}
+
 resource "aws_rds_cluster" "this" {
   cluster_identifier = "jackievink-website"
 
-  engine         = "aurora-postgresql"
+  engine         = data.aws_rds_engine_version.aurora_postgres15.engine
   engine_mode    = "provisioned"
-  engine_version = "15.7"
+  engine_version = data.aws_rds_engine_version.aurora_postgres15.version_actual
 
   database_name   = "jackievink"
   master_username = var.db_username
@@ -127,8 +133,8 @@ resource "aws_rds_cluster_instance" "this" {
   cluster_identifier = aws_rds_cluster.this.id
   identifier         = "jackievink-website-1"
 
-  engine         = aws_rds_cluster.this.engine
-  engine_version = aws_rds_cluster.this.engine_version
+  engine         = data.aws_rds_engine_version.aurora_postgres15.engine
+  engine_version = data.aws_rds_engine_version.aurora_postgres15.version_actual
   instance_class = "db.serverless"
 
   db_subnet_group_name = aws_db_subnet_group.this.name

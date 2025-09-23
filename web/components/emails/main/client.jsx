@@ -1,19 +1,20 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Letter } from 'react-letter';
-import { extract } from 'letterparser';
+
+import { useRef, useEffect, Suspense } from 'react';
+
 import { format, formatDistanceToNow } from 'date-fns';
+import { extract } from 'letterparser';
+import { Paperclip, Printer } from 'lucide-react';
+import { Letter } from 'react-letter';
 import { useReactToPrint } from 'react-to-print';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
 
-import { ThreadEntriesSkeleton, Card, ThreadEntryScrollContainer } from './components-server';
 import { useApiCall, useTextApiCall } from '@/lib/api';
-import ClientOnly from '@/components/clientonly';
-
-import './email.css';
+import { ClientOnly } from '@/components/clientonly';
+import { Loading } from '@/components/loading';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MyCard } from '../shared/server';
+import { ThreadEntryScrollContainer, ThreadEntriesSkeleton } from './server';
 
 
 const handleDownload = async (path, name) => {
@@ -66,6 +67,58 @@ function isEmptyOrBrOnly(element) {
   return true;
 }
 
+
+const ThreadEntryCard = ({ entry, author, children }) => (
+  <MyCard id={`entry-${entry.entryId}`} className="break-inside-avoid">
+    <div className="p-4 border-b">
+      <div className="flex items-center space-x-1">
+        <div className="flex flex-1 justify-between items-baseline space-x-1">
+          <div className="line-clamp-1 font-semibold w-full max-w-48">
+            {author}
+          </div>
+          <div className="flex-none text-xs text-muted-foreground">
+            <time
+              dateTime={entry.timestamp}
+              title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
+              suppressHydrationWarning={true}
+            >
+              {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
+            </time>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="p-4">
+      {children}
+    </div>
+    {!!entry.media?.length && <div className="p-4 border-t space-y-2">
+      {entry.media.map(a => (
+        <button
+          key={a.uri}
+          onClick={() => handleDownload(a.uri, a.name)}
+          className="space-x-1"
+        >
+          <span className="text-muted-foreground">
+            <Paperclip className="inline-block" size="15"/>
+          </span>
+          <span>{a.name}</span>
+        </button>
+      ))}
+    </div>}
+  </MyCard>
+);
+
+
+const ThreadEntrySkeleton  = ({ entry }) => (
+  <ThreadEntryCard
+    entry={entry}
+    author={entry.authorFullName || <Skeleton className="h-[1lh] w-full" />}
+  >
+    <Loading />
+  </ThreadEntryCard>
+);
+
+
 export const ThreadEntry = ({ entry }) => {
   const { data } = useTextApiCall(`https://static.jackievink.com/${entry.emailUri}`);
   const { html, text, from } = extract(data);
@@ -94,41 +147,19 @@ export const ThreadEntry = ({ entry }) => {
   }, [emailRef.current]);
 
   return (
-    <Card id={`entry-${entry.entryId}`} className="break-inside-avoid">
-      <div className="p-4 border-b">
-        <div className="flex items-center space-x-1">
-          <div className="flex flex-1 justify-between items-baseline space-x-1">
-            <div className="line-clamp-1 font-semibold">
-              {entry.authorFullName || from?.name || from?.address}
-            </div>
-            <div className="flex-none text-xs text-muted-foreground">
-              <time
-                dateTime={entry.timestamp}
-                title={format(entry.timestamp, 'EEEE, MMMM d, yyyy @ h:mm a')}
-                suppressHydrationWarning={true}
-              >
-                {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
-              </time>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 email" ref={emailRef}>
+    <ThreadEntryCard
+      entry={entry}
+      author={entry.authorFullName || from?.name || from?.address}
+    >
+      <div className="email" ref={emailRef}>
         <Letter html={html} text={text} />
       </div>
-      {!!entry.media?.length && <div className="p-4 border-t space-y-2">
-        {entry.media.map(a => (
-          <div key={a.uri}>
-            📎 <button onClick={() => handleDownload(a.uri, a.name)}>{a.name}</button>
-          </div>
-        ))}
-      </div>}
-    </Card>
+    </ThreadEntryCard>
   );
 };
 
 
-export const ThreadEntriesFetch = ({ threadId }) => {
+const ThreadEntriesFetch = ({ threadId }) => {
   const printRef = useRef(null);
   const triggerPrint = useReactToPrint({ contentRef: printRef });
   const { data } = useApiCall(`api/email/entries?threadId=${threadId}`)
@@ -140,11 +171,13 @@ export const ThreadEntriesFetch = ({ threadId }) => {
           <div className="text-xl px-4 pt-2 flex justify-between">
             <div>{data[data.length -1].emailSubject}</div>
             <button className="print:hidden text-muted-foreground" onClick={triggerPrint}>
-              <FontAwesomeIcon icon={faPrint} />
+              <Printer />
             </button>
           </div>
           {data.map(e => (
-            <ThreadEntry key={e.entryId} entry={e} />
+            <Suspense key={e.entryId} fallback={<ThreadEntrySkeleton entry={e} />}>
+              <ThreadEntry entry={e} />
+            </Suspense>
           ))}
         </>}
       </ThreadEntryScrollContainer>
@@ -153,12 +186,8 @@ export const ThreadEntriesFetch = ({ threadId }) => {
 }
 
 
-export const ThreadEntries = () => {
-  const searchParams = useSearchParams();
-  const threadId = searchParams.get('id');
-  const result = threadId
+export const ThreadEntries = ({ threadId }) => (
+  threadId
     ? <ClientOnly><ThreadEntriesFetch threadId={threadId} /></ClientOnly>
-    : <ThreadEntriesSkeleton />;
-
-  return result;
-}
+    : <ThreadEntriesSkeleton />
+);
